@@ -18,17 +18,19 @@ public class MouseInput extends MouseAdapter{
 	}
 	
 	public void mousePressed(MouseEvent e) {
-		int mx = (int) (e.getX()+ camera.getX());
-		int my = (int) (e.getY()+ camera.getY());
+		float mx = (e.getX()/Main.SCALE+ camera.getX());
+		float my = (e.getY()/Main.SCALE+ camera.getY());
 		
 		for(int i = 0; i < handler.object.size(); i++) {
 			GameObject tempObject = handler.object.get(i);
-			
-			if(tempObject.getId() == ID.Player && main.ammo >=1) { 
-					handler.addObject(new Bullet(tempObject.getX()+16, tempObject.getY()+16, ID.Bullet, handler, mx, my, ss)); 
-					main.ammo--;
+			if(tempObject.getId() == ID.Weapon && Weapon.get().getIsEquipped() && Weapon.get().getMagSize() >=1) {
+					handler.addObject(new Bullet(tempObject.getX(), tempObject.getY(), ID.Bullet, handler, mx, my,ss)); 
+					Weapon.get().minusOneBullet();
 				}
-			
+			else if(tempObject.getId()== ID.Weapon && Weapon.get().getIsEquipped() && Weapon.get().getMagSize() == 0) {
+				//TODO add reload method
+				break;
+			}
 		}
 	}
 }

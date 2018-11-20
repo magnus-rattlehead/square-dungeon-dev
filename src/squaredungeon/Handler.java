@@ -7,7 +7,7 @@ public class Handler {
 	ArrayList<GameObject> object = new ArrayList<GameObject>();
 	private boolean up = false, down = false, right = false, left = false;
 	
-	public void tick() {
+	public synchronized void tick() {
 		for(int i=0; i < object.size(); i ++) {
 			GameObject tempObject = object.get(i);
 			
@@ -23,11 +23,11 @@ public class Handler {
 		}
 	}
 	
-	public void addObject(GameObject tempObject) {
+	public synchronized void addObject(GameObject tempObject) {
 		object.add(tempObject);
 	}
 	
-	public void removeObject(GameObject tempObject) {
+	public synchronized void removeObject(GameObject tempObject) {
 		object.remove(tempObject);
 	}
 

@@ -1,11 +1,15 @@
 /**
 
-Square Dungeon - by Stivi Guranjaku
+Square Dungeon - by Stivi Guranjaku and Pablo Lafontaine
 TODO:
-1. Create Sprite sheet
-2. Tie loose ends in code
-3. Add win condition
-4. Add multiple levels
+1. Create Sprite sheet (Pablo)
+2. Tie loose ends in code(bullets done, collision done)
+3. Enemy AI (A* MUST DO)
+4. Add win condition(DONE)
+5. Add multiple levels (must add method to change levels)
+6. Redesign levels? (Isometric angle - Nuclear throne)
+
+Rest of the TODO is in the Weapon class
 ... to be continued
 
 **/
@@ -19,6 +23,9 @@ import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Main extends Canvas implements Runnable{
 
@@ -32,15 +39,31 @@ public class Main extends Canvas implements Runnable{
 	private boolean running = false;
 	private Thread thread;
 	private Handler handler;
+	private BufferedImageLoader loader = new BufferedImageLoader();
 	private BufferedImage level = null;
 	private BufferedImage sprite_sheet = null;
 	private Camera camera;
 	private SpriteSheet ss;
 	private BufferedImage floor = null;
 	
+	private final int LEVEL_1_NUM_OF_ENEMIES = 40;
+	private final int LEVEL_2_NUM_OF_ENEMIES = 40;
+	
+	public static final float SCALE = 2.75f;
+	
 	public static int ammo = 100;
 	public int hp = 100;
-	public int currentLevel = 2;
+	public int currentLevel = 1;
+	public static int numOfEnemies = 0;
+	public static boolean levelComplete = false;
+	public static boolean checkLoopDone = false;
+	
+	//weapons and other items taht will be initialized in initItems
+	public static Weapon pistol;
+	public static Weapon smg;
+	public static Weapon shotgun;
+	public static Weapon rifle;
+	public static Weapon sniper;
 	
 	public Main() {
 		new Game(WIDTH,HEIGHT, "Square Dungeon", this);
@@ -50,19 +73,19 @@ public class Main extends Canvas implements Runnable{
 		camera = new Camera(0,0);
 		this.addKeyListener(new KeyInput(handler));
 		
-		
-		BufferedImageLoader loader = new BufferedImageLoader();
-		level = loader.loadImage("/level_" + currentLevel +".png");
+		level = loader.loadImage("/level_"+currentLevel+".png");
 		
 		sprite_sheet = loader.loadImage("/sprite_sheet.png");//TODO add sprite sheet
 		
 		ss = new SpriteSheet(sprite_sheet);
 		
-		//floor = ss.grabImage(0, 0, 32, 32); //placeholer
+		floor = ss.grabImage(7, 1, 32, 32); //placeholer
 		
 		this.addMouseListener(new MouseInput(handler,camera, this,ss));
 		
 		loadLevel(level);
+		
+		
 	}
 	
 	private void start() {
@@ -82,6 +105,7 @@ public class Main extends Canvas implements Runnable{
 	}
 	public void tick() {
 		if(hp <= 0) stop();
+		
 		for(int i = 0; i < handler.object.size(); i++) {
 			if(handler.object.get(i).getId() == ID.Player) {
 				camera.tick(handler.object.get(i));
@@ -89,6 +113,8 @@ public class Main extends Canvas implements Runnable{
 		}
 		
 		handler.tick();
+		getNumEnemies();
+		if(levelComplete) currentLevel++; levelComplete=false;System.out.println(currentLevel);System.out.println(numOfEnemies);
 	}
 	public void render() {
 		BufferStrategy bs = this.getBufferStrategy();
@@ -105,18 +131,17 @@ public class Main extends Canvas implements Runnable{
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		
+		g2d.scale(SCALE, SCALE);
+		
 		g2d.translate(-camera.getX(), -camera.getY());
 		
 		//TODO uncomment when sprite sheet complete
-		/*
-		 * for(int xx = 0; xx < 30*72; xx+=32){
-		 * 	for(int yy =0; yy < 30*72 yy+=32){
-		 * 		g.drawImage(floor, xx, yy, null);
-		 * 	}
-		 * }
-		 * 
-		 * 
-		 * */
+		
+		 for(int xx = 0; xx < 30*72; xx+=32){
+			 for(int yy =0; yy < 30*72; yy+=32){
+		  		g.drawImage(floor, xx, yy, null);
+		  	}
+		  }
 		
 		handler.render(g);
 		
@@ -135,11 +160,12 @@ public class Main extends Canvas implements Runnable{
 		//Ammo Display
 		
 		g.setColor(Color.WHITE);
-		g.drawString("Ammo: " + ammo, 5, 64);
+		g.drawString("Ammo: " + Weapon.get().getMagSize() + "/" + Weapon.get().getMaxAmmo(), 5, 64);
 		////////////////////////////////////
 		g.dispose();
 		bs.show();
 	}
+	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
@@ -182,15 +208,44 @@ public class Main extends Canvas implements Runnable{
 				int green = (pixel >> 8) & 0xff;
 				int blue = (pixel) & 0xff;
 				
-				if(red ==255) handler.addObject(new Block(xx*32,yy*32, ID.Block,ss));
+				if(red ==255) handler.addObject(new Block(xx*32,yy*32, ID.Block,ss, handler));
 				if(blue ==255 && green ==0) handler.addObject(new Player(xx*32,yy*32, ID.Player, handler, this,ss));
-				if(green==255 && blue ==0) handler.addObject(new Enemy1(xx*32, yy*32, ID.Enemy, handler,ss));
+				if(green==255 && blue ==0) handler.addObject(new Enemy1(xx*32, yy*32, ID.Enemy, handler,ss)); 
 				if(blue==255&&green==255) handler.addObject(new Crate(xx*32,yy*32, ID.Crate,ss));
 			}
 		}
 	}
+	
+	private void getNumEnemies() {
+		if(!checkLoopDone) {
+			numOfEnemies = 0;
+			for(int i=0; i < handler.object.size(); i ++) {
+				GameObject tempObject = handler.object.get(i);
+				if(tempObject.getId() == ID.Enemy) {
+					numOfEnemies++; 
+					/*TODO Once multiple levels are added, make new constant variables for evey level*/
+					if(currentLevel ==1) {
+						if(numOfEnemies >= LEVEL_1_NUM_OF_ENEMIES)checkLoopDone = true;
+					}else if (currentLevel ==2) {
+						if(numOfEnemies >= LEVEL_2_NUM_OF_ENEMIES)checkLoopDone = true;
+					}
+				}
+			}
+		}
+	}
+	private static void levelComplete() {
+		if(numOfEnemies<=0) levelComplete = true;
+		else levelComplete = false;
+	}
 	public static void main(String[] args) {
-		new Main();
+		 final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+		 executorService.scheduleAtFixedRate(new Runnable() {
+		        @Override
+		        public void run() {
+		            levelComplete();
+		        }
+		    }, 5, 1, TimeUnit.SECONDS);
+		 new Main();
 	}
 
 }

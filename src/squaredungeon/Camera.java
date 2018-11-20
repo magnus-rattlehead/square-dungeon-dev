@@ -9,8 +9,8 @@ public class Camera {
 	}
 	
 	public void tick(GameObject object) {
-		x +=((object.getX()-x) - Main.WIDTH/2) * 0.05f;
-		y +=((object.getY()-y) - Main.HEIGHT/2) * 0.05f;
+		x +=((object.getX()-x) - Main.WIDTH/2/Main.SCALE) * 0.05f;
+		y +=((object.getY()-y) - Main.HEIGHT/2/Main.SCALE) * 0.05f;
 		
 		if(x <=0) x =0;
 		if(x >= Main.WIDTH + 32) x = Main.WIDTH + 32;

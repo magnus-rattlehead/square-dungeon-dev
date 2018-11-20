@@ -9,6 +9,7 @@ public abstract class GameObject {
 	protected float vx = 0, vy = 0;
 	protected ID id;
 	protected SpriteSheet ss;
+	protected boolean spottedPlayer;
 	
 	public GameObject(double x2, double y2, ID id, SpriteSheet ss) {
 		this.x = x2;
@@ -37,7 +38,7 @@ public abstract class GameObject {
 		this.x = x;
 	}
 
-	public double getY() {
+	public double  getY() {
 		return y;
 	}
 
