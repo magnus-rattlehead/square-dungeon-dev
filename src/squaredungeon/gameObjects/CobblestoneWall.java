@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 import squaredungeon.gfx.SpriteSheet;
 import squaredungeon.main.Handler;
 
-public class Block extends GameObject {
+public class CobblestoneWall extends Tile {
 
 	private boolean activated = false;
 	private BufferedImage block_image;
@@ -21,7 +21,7 @@ public class Block extends GameObject {
 
 	private boolean flip = false;
 
-	public Block(int x, int y, ID id, SpriteSheet ss, Handler handler) {
+	public CobblestoneWall(int x, int y, ID id, SpriteSheet ss, Handler handler) {
 		super(x, y, id, ss);
 		this.handler = handler;
 
@@ -107,48 +107,48 @@ public class Block extends GameObject {
 		}
 
 		if (!flip) {
-			g.drawImage(block_image, (int) x, (int) y, 32, 32, null);
+			g.drawImage(block_image,   x,   y, 32, 32, null);
 		}
 
 		else {
-			g.drawImage(block_image, (int) x + 32, (int) y, -32, 32, null);
+			g.drawImage(block_image,   x + 32,   y, -32, 32, null);
 		}
 	}
 	// g.fillRect(rightRect.x,rightRect.y,32,32);
 
 	public Rectangle getBounds() {
 		// TODO Auto-generated method stub
-		return new Rectangle((int) x, (int) y + 8, 32, 32);
+		return new Rectangle(  x,   y, 32, 32);
 	}
 
-	private synchronized int checkForNeighbours(double x, double y) {
-		for (int i = 0; i < handler.object.size(); i++) {
+	protected synchronized int checkForNeighbours(int x, int y) {
+		for (int i = 0; i < handler.tile.size(); i++) {
 
-			GameObject tempObject0 = handler.object.get(i);
-			if (tempObject0.id == ID.Block) {
-				if (new Rectangle((int) x + 32, (int) y, 32, 32).intersects(tempObject0.getBounds())) {
+			Tile tempTile0 = handler.tile.get(i);
+			if (tempTile0.id == ID.Block) {
+				if (new Rectangle(  x + 32,   y, 32, 32).intersects(tempTile0.getBounds())) {
 					checkedRight = true;
 				}
 			}
 
-			GameObject tempObject1 = handler.object.get(i);
-			if (tempObject1.id == ID.Block) {
-				if (new Rectangle((int) x - 32, (int) y, 32, 32).intersects(tempObject1.getBounds())) {
+			Tile tempTile1 = handler.tile.get(i);
+			if (tempTile1.id == ID.Block) {
+				if (new Rectangle(  x - 32,   y, 32, 32).intersects(tempTile1.getBounds())) {
 					checkedLeft = true;
 				}
 			}
 
-			GameObject tempObject2 = handler.object.get(i);
-			if (tempObject2.id == ID.Block) {
-				if (new Rectangle((int) x, (int) y + 32, 32, 32).intersects(tempObject2.getBounds())) {
+			Tile tempTile2 = handler.tile.get(i);
+			if (tempTile2.id == ID.Block) {
+				if (new Rectangle(  x,   y + 32, 32, 32).intersects(tempTile2.getBounds())) {
 					checkedDown = true;
 				}
 
 			}
 
-			GameObject tempObject3 = handler.object.get(i);
-			if (tempObject3.id == ID.Block) {
-				if (new Rectangle((int) x, (int) y - 32, 32, 32).intersects(tempObject3.getBounds())) {
+			Tile tempTile3 = handler.tile.get(i);
+			if (tempTile3.id == ID.Block) {
+				if (new Rectangle(  x,   y - 32, 32, 32).intersects(tempTile3.getBounds())) {
 					checkedUp = true;
 				}
 			}

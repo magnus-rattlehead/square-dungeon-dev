@@ -5,8 +5,10 @@ import java.awt.event.MouseEvent;
 
 import squaredungeon.gameObjects.Bullet;
 import squaredungeon.gameObjects.Camera;
-import squaredungeon.gameObjects.GameObject;
+import squaredungeon.gameObjects.Entity;
 import squaredungeon.gameObjects.ID;
+import squaredungeon.gameObjects.Mob;
+import squaredungeon.gameObjects.Weapon;
 import squaredungeon.gfx.SpriteSheet;
 
 public class MouseInput extends MouseAdapter {
@@ -25,12 +27,12 @@ public class MouseInput extends MouseAdapter {
 		float mx = (e.getX() / Main.SCALE + camera.getX());
 		float my = (e.getY() / Main.SCALE + camera.getY());
 
-		for (int i = 0; i < handler.object.size(); i++) {
-			GameObject tempObject = handler.object.get(i);
-			if (tempObject.getId() == ID.Weapon && Weapon.get().getIsEquipped() && Weapon.get().getMagSize() >= 1) {
-				handler.addObject(new Bullet(tempObject.getX(), tempObject.getY(), ID.Bullet, handler, mx, my, ss));
+		for (int i = 0; i < handler.entity.size(); i++) {
+			Entity tempEntity = handler.entity.get(i);
+			if (tempEntity.getId() == ID.Weapon && Weapon.get().getIsEquipped() && Weapon.get().getMagSize() >= 1) {
+				handler.addEntity(new Bullet(tempEntity.getX(), tempEntity.getY(), ID.Bullet, handler, mx, my, ss));
 				Weapon.get().minusOneBullet();
-			} else if (tempObject.getId() == ID.Weapon && Weapon.get().getIsEquipped()
+			} else if (tempEntity.getId() == ID.Weapon && Weapon.get().getIsEquipped()
 					&& Weapon.get().getMagSize() == 0) {
 				// TODO add reload method
 				break;

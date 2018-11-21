@@ -3,6 +3,8 @@ package squaredungeon.main;
 import java.util.ArrayList;
 import java.util.List;
 
+import squaredungeon.gameObjects.Weapon;
+
 public class Inventory {
 	private List<Weapon> weapons;
 	private final int maxPrimaryWeapons;

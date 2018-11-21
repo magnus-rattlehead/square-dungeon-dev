@@ -3,8 +3,8 @@ package squaredungeon.main;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-import squaredungeon.gameObjects.GameObject;
 import squaredungeon.gameObjects.ID;
+import squaredungeon.gameObjects.Mob;
 
 public class KeyInput extends KeyAdapter {
 
@@ -16,10 +16,10 @@ public class KeyInput extends KeyAdapter {
 
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
-		for (int i = 0; i < handler.object.size(); i++) {
-			GameObject tempObject = handler.object.get(i);
+		for (int i = 0; i < handler.mob.size(); i++) {
+			Mob tempMob = handler.mob.get(i);
 
-			if (tempObject.getId() == ID.Player) {
+			if (tempMob.getId() == ID.Player) {
 				if (key == KeyEvent.VK_W)
 					handler.setUp(true);
 				if (key == KeyEvent.VK_A)
@@ -34,10 +34,10 @@ public class KeyInput extends KeyAdapter {
 
 	public void keyReleased(KeyEvent e) {
 		int key = e.getKeyCode();
-		for (int i = 0; i < handler.object.size(); i++) {
-			GameObject tempObject = handler.object.get(i);
+		for (int i = 0; i < handler.mob.size(); i++) {
+			Mob tempMob = handler.mob.get(i);
 
-			if (tempObject.getId() == ID.Player) {
+			if (tempMob.getId() == ID.Player) {
 				if (key == KeyEvent.VK_W)
 					handler.setUp(false);
 				if (key == KeyEvent.VK_A)

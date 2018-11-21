@@ -6,9 +6,8 @@ import java.awt.Rectangle;
 
 import squaredungeon.gfx.SpriteSheet;
 import squaredungeon.main.Handler;
-import squaredungeon.main.Weapon;
 
-public class Bullet extends GameObject {
+public class Bullet extends Entity {
 	private Handler handler;
 
 	public Bullet(int x, int y, ID id, Handler handler, float mx, float my, SpriteSheet ss) {
@@ -27,12 +26,12 @@ public class Bullet extends GameObject {
 		x += vx;
 		y += vy;
 
-		for (int i = 0; i < handler.object.size(); i++) {
-			GameObject tempObject = handler.object.get(i);
+		for (int i = 0; i < handler.tile.size(); i++) {
+			Tile tempTile = handler.tile.get(i);
 
-			if (tempObject.getId() == ID.Block) {
-				if (getBounds().intersects(tempObject.getBounds()))
-					handler.removeObject(this);
+			if (tempTile.getId() == ID.Block) {
+				if (getBounds().intersects(tempTile.getBounds()))
+					handler.removeEntity(this);
 			}
 
 		}

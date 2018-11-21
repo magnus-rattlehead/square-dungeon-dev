@@ -6,57 +6,64 @@ import java.awt.Rectangle;
 import squaredungeon.gfx.SpriteSheet;
 import squaredungeon.main.Handler;
 
-public class EnemyPlayerCheck extends GameObject {
+public class EnemyPlayerCheck extends Entity
+{
+	
 	private Handler handler;
 	private int lifeTime = 13;
-
-	public EnemyPlayerCheck(int x, int y, ID id, Handler handler, int x3, int y3, SpriteSheet ss) {
-		super(x, y, id, ss);
-		// TODO Auto-generated constructor stub
+	public EnemyPlayerCheck(int x, int y, ID id, Handler handler, int mx, int my, SpriteSheet ss) {
+		super(x, y, id,ss);
 		this.handler = handler;
-
+		
 		float bv = 20f;
-		double angle = Math.atan2(y3 - y, x3 - x);
-		this.vx = (float) ((bv) * Math.cos(angle));
-		this.vy = (float) ((bv) * Math.sin(angle));
+		double angle = Math.atan2(my+16 - this.y, mx+16 - this.x);
+        this.vx = ((bv) * Math.cos(angle));
+        this.vy = ((bv) * Math.sin(angle));
+ 
 	}
-
 	@Override
-	public void tick() {
-		// TODO Auto-generated method stub
-		x += this.vx;
-		y += this.vy;
+	public synchronized void tick() {
+		
+
+		if(lifeTime <= 0) handler.removeEntity(this);
+		this.x+= this.vx;
+		this.y+= this.vy;
 		lifeTime--;
-		if (lifeTime <= 0)
-			handler.removeObject(this);
-
-		for (int i = 0; i < handler.object.size(); i++) {
-			GameObject tempObject = handler.object.get(i);
-
-			if (tempObject.getId() == ID.Block) {
-				if (getBounds().intersects(tempObject.getBounds()))
-					handler.removeObject(this);
-			}
-			if (tempObject.getId() == ID.Player) {
-				if (getBounds().intersects(tempObject.getBounds())) {
-					tempObject.spottedPlayer = true;
+		
+		for(int i = 0; i < handler.mob.size(); i++) {
+			Mob tempMob = handler.mob.get(i);
+			
+	
+			if(tempMob.getId() == ID.Player) {
+				if(getBounds().intersects(tempMob.getBounds())) {
+					tempMob.spottedPlayer = true;
+					handler.removeEntity(this);	
 				}
 			}
-
+			
+			
 		}
-
+		
+		for(int i = 0; i < handler.tile.size(); i++) {
+			Tile tempTile = handler.tile.get(i);
+			if(tempTile.getId() == ID.Block) {
+				
+					if(getBounds().intersects(tempTile.getBounds())) handler.removeEntity(this);	
+				
+	
+			}
+		}
 	}
 
 	@Override
 	public void render(Graphics g) {
-		// TODO Auto-generated method stub
-
+		g.fillRect(x, y, 2, 2);
 	}
-
 	@Override
 	public Rectangle getBounds() {
-		// TODO Auto-generated method stub
-		return new Rectangle((int) x, (int) y, 1, 1);
+		
+		return new Rectangle((int)x,(int)y,1,1);
 	}
+
 
 }

@@ -5,12 +5,12 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
-import squaredungeon.gameObjects.GameObject;
+import squaredungeon.gameObjects.Entity;
 import squaredungeon.gameObjects.ID;
 import squaredungeon.gfx.Animation;
 import squaredungeon.gfx.SpriteSheet;
 
-public class TorchLight extends GameObject {
+public class TorchLight extends Entity {
 
 	private int counter2 = 1;
 	private boolean less = false;

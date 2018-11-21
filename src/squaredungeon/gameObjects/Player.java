@@ -9,19 +9,20 @@ import squaredungeon.gfx.SpriteSheet;
 import squaredungeon.main.Handler;
 import squaredungeon.main.Main;
 
-public class Player extends GameObject {
+public class Player extends Mob {
 
-	Handler handler;
+
 	Main main;
 	private int spottedTimer = 1000;
 	private BufferedImage player_image;// replace 0 with amount of player models
 	Animation anim;
-
-	public Player(int x, int y, ID id, Handler handler, Main main, SpriteSheet ss) {
+	
+	public Player(int x, int y, Handler handler, ID id, Main main, SpriteSheet ss) {
 		super(x, y, id, ss);
 		this.handler = handler;
 		this.main = main;
 		player_image = ss.grabImage(32, 32, 32, 32); // placeholer
+		
 		// player_image[1] = ss.grabImage(0, 0, 32, 32); //placeholer
 		// player_image[2] = ss.grabImage(0, 0, 32, 32); //placeholer
 		// ...
@@ -32,11 +33,13 @@ public class Player extends GameObject {
 	@Override
 	public void tick() {
 		if (spottedTimer <= 0) {
+		
 			this.spottedPlayer = false;
 			spottedTimer = 1000;
 		}
 		if (this.spottedPlayer == true)
 			spottedTimer--;
+
 
 		collision(vx, vy);
 
@@ -64,30 +67,55 @@ public class Player extends GameObject {
 			Move(0, vy);
 		}
 		// anim.runAnimation();
+		for (int i = 0; i < handler.entity.size(); i++) {
+			Entity tempEntity = handler.entity.get(i);
+		if (tempEntity.getId() == ID.Crate) {
+			if (getBounds().intersects(tempEntity.getBounds())) {
+				main.ammo += 50;
+				handler.removeEntity(tempEntity);
+			}
+		}
+		if (tempEntity.getId() == ID.EnemyPlayerCheck) {
+			if (getBounds().intersects(tempEntity.getBounds())) {
+				spottedPlayer = true;
+				handler.removeEntity(tempEntity);
+			}
+		}
+
+		}
 	}
 
-	private boolean collision(double vx, double vy) {
-		for (int i = 0; i < handler.object.size(); i++) {
-			GameObject tempObject = handler.object.get(i);
-			if (tempObject.getId() == ID.Block) {
-				if (new Rectangle(x + (int) vx, y + (int) vy, 31, 31).intersects(tempObject.getBounds())) {
+	public boolean collision(double vx, double vy) {
+		for (int i = 0; i < handler.tile.size(); i++) {
+			Tile tempTile = handler.tile.get(i);
+			if (tempTile.getId() == ID.Block) {
+				if (new Rectangle(x + (int) vx, y + (int) vy, 31, 31).intersects(tempTile.getBounds())) {
 					return true;
 				}
 			}
-			if (tempObject.getId() == ID.Crate) {
-				if (getBounds().intersects(tempObject.getBounds())) {
-					main.ammo += 50;
-					handler.removeObject(tempObject);
-				}
-			}
-			if (tempObject.getId() == ID.Enemy) {
-				if (getBounds().intersects(tempObject.getBounds())) {
-					main.hp--;// TODO make it so you cant get stuck in enemies and they drain all your health
-				}
+	
+	
+		}
+		for (int i = 0; i < handler.mob.size(); i++) {
+			Mob tempMob = handler.mob.get(i);
+		if (tempMob.getId() == ID.Enemy) {
+			if (getBounds().intersects(tempMob.getBounds())) {
+				//main.hp--;// TODO make it so you cant get stuck in enemies and they drain all your health
 			}
 		}
+		}
+		
 		return false;
 	}
+	public void Move(double vx, double vy) {
+		
+		if (!collision(vx, vy)) {
+			this.x += vx;
+			this.y += vy;
+		}
+
+	}
+
 
 	@Override
 	public void render(Graphics g) {
@@ -98,13 +126,7 @@ public class Player extends GameObject {
 		// anim.drawAnimation(g,x,y,1);
 	}
 
-	public void Move(double vx, double vy) {
-		if (!collision(vx, vy)) {
-			x += vx;
-			y += vy;
-		}
 
-	}
 
 	@Override
 	public Rectangle getBounds() {

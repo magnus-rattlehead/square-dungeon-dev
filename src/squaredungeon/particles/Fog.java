@@ -5,12 +5,12 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.util.Random;
 
-import squaredungeon.gameObjects.GameObject;
+import squaredungeon.gameObjects.Effect;
 import squaredungeon.gameObjects.ID;
 import squaredungeon.gfx.SpriteSheet;
 import squaredungeon.main.Main;
 
-public class Fog extends GameObject {
+public class Fog extends Effect {
 
 	private int size;
 	private int alpha;

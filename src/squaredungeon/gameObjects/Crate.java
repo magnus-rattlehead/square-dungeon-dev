@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 import squaredungeon.gfx.Animation;
 import squaredungeon.gfx.SpriteSheet;
 
-public class Crate extends GameObject {
+public class Crate extends Entity {
 
 	private BufferedImage[] crate_image = new BufferedImage[7];
 	Animation anim;

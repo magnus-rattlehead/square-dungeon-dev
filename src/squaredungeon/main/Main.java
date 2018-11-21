@@ -28,13 +28,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import squaredungeon.gameObjects.Block;
+import squaredungeon.gameObjects.CobblestoneWall;
 import squaredungeon.gameObjects.Camera;
 import squaredungeon.gameObjects.Crate;
-import squaredungeon.gameObjects.Enemy1;
-import squaredungeon.gameObjects.GameObject;
 import squaredungeon.gameObjects.ID;
+import squaredungeon.gameObjects.Mob;
 import squaredungeon.gameObjects.Player;
+import squaredungeon.gameObjects.Skeleton;
+import squaredungeon.gameObjects.Weapon;
 import squaredungeon.gfx.BufferedImageLoader;
 import squaredungeon.gfx.SpriteSheet;
 import squaredungeon.particles.Fog;
@@ -46,6 +47,7 @@ public class Main extends Canvas implements Runnable {
 
 	static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
+	//dimensions of the screen
 	public static final int WIDTH = (int) screenSize.getWidth();
 	public static final int HEIGHT = (int) screenSize.getHeight();
 
@@ -120,9 +122,10 @@ public class Main extends Canvas implements Runnable {
 		if (hp <= 0)
 			stop();
 
-		for (int i = 0; i < handler.object.size(); i++) {
-			if (handler.object.get(i).getId() == ID.Player) {
-				camera.tick(handler.object.get(i));
+		for (int i = 0; i < handler.mob.size(); i++) {
+			Mob tempMob = handler.mob.get(i);
+			if (tempMob.getId() == ID.Player) {
+				camera.tick(tempMob);
 			}
 		}
 
@@ -149,8 +152,9 @@ public class Main extends Canvas implements Runnable {
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 
 		g2d.scale(SCALE, SCALE);
-
-		g2d.translate(-camera.getX(), -camera.getY());
+		if (level != null) { // once the level is found, add a tint
+			g2d.translate(-camera.getX(), -camera.getY());
+		}
 
 		// TODO uncomment when sprite sheet complete
 
@@ -163,6 +167,7 @@ public class Main extends Canvas implements Runnable {
 		handler.render(g);
 
 		if (level != null) { // once the level is found, add a tint
+		
 			g.setColor(new Color(5, 5, 100, 20));
 			g.fillRect(0, 0, level.getWidth() * 32, level.getHeight() * 32);
 		}
@@ -236,17 +241,17 @@ public class Main extends Canvas implements Runnable {
 				int fogX = r1.nextInt(w * 32);
 				int fogY = r1.nextInt(h * 32);
 				if (red == 255)
-					handler.addObject(new Block(xx * 32, yy * 32, ID.Block, ss, handler));
+					handler.addTile(new CobblestoneWall(xx * 32, yy * 32, ID.Block, ss, handler));
 				if (blue == 255 && green == 0) {
-					handler.addObject(new Player(xx * 32, yy * 32, ID.Player, handler, this, ss));
-					handler.addObject(new TorchLight(xx * 32, yy * 32, ID.TorchLight, ss, 150));
+					handler.addMob(new Player(xx * 32, yy * 32, handler, ID.Player, this, ss));
+					handler.addEntity(new TorchLight(xx * 32, yy * 32, ID.TorchLight, ss, 150));
 				}
 				if (green == 255 && blue == 0)
-					handler.addObject(new Enemy1(xx * 32, yy * 32, ID.Enemy, handler, ss));
+					handler.addMob(new Skeleton(xx * 32, yy * 32, ID.Enemy, ss, handler));
 				if (blue == 255 && green == 255)
-					handler.addObject(new Crate(xx * 32, yy * 32, ID.Crate, ss));
+					handler.addEntity(new Crate(xx * 32, yy * 32, ID.Crate, ss));
 				if (r1.nextInt(3) == 1) {
-					handler.addObject(new Fog(fogX, fogY, ID.Fog, ss, r1.nextInt(100) + 40, 0));
+					handler.addEffect(new Fog(fogX, fogY, ID.Fog, ss, r1.nextInt(100) + 40, 0));
 				}
 			}
 		}
@@ -255,9 +260,9 @@ public class Main extends Canvas implements Runnable {
 	private void getNumEnemies() {
 		if (!checkLoopDone) {
 			numOfEnemies = 0;
-			for (int i = 0; i < handler.object.size(); i++) {
-				GameObject tempObject = handler.object.get(i);
-				if (tempObject.getId() == ID.Enemy) {
+			for (int i = 0; i < handler.mob.size(); i++) {
+				Mob tempMob = handler.mob.get(i);
+				if (tempMob.getId() == ID.Enemy) {
 					numOfEnemies++;
 					/*
 					 * TODO Once multiple levels are added, make new constant variables for evey

@@ -1,11 +1,9 @@
-package squaredungeon.main;
+package squaredungeon.gameObjects;
 
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
-import squaredungeon.gameObjects.GameObject;
-import squaredungeon.gameObjects.ID;
 import squaredungeon.gfx.SpriteSheet;
 
 /*
@@ -25,7 +23,7 @@ import squaredungeon.gfx.SpriteSheet;
  * Will consult with Pablo
  * */
 
-public class Weapon extends GameObject {
+public class Weapon extends Entity {
 
 	public static final ArrayList<Weapon> arrayWeapon = new ArrayList<>();
 
