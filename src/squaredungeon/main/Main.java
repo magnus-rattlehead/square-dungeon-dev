@@ -23,6 +23,10 @@ import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -55,13 +59,13 @@ public class Main extends Canvas implements Runnable {
 	private Thread thread;
 	
 	private Handler handler;
-	private BufferedImageLoader loader = new BufferedImageLoader();
+	private static BufferedImageLoader loader = new BufferedImageLoader();
 	public static BufferedImage level = null;
 	
-	private BufferedImage sprite_sheet_tiles = null; //use the correct sprite sheet for the sprites pls thx boss
-	private BufferedImage sprite_sheet_mob = null;
-	private BufferedImage sprite_sheet_entity = null;
-	private BufferedImage sprite_sheet_effects = null;
+	private static BufferedImage sprite_sheet_tiles = null; //use the correct sprite sheet for the sprites pls thx boss
+	private static BufferedImage sprite_sheet_mob = null;
+	private static BufferedImage sprite_sheet_entity = null;
+	private static BufferedImage sprite_sheet_effects = null;
 	
 	private Camera camera;
 	private SpriteSheet ssTile;
@@ -262,7 +266,7 @@ public class Main extends Canvas implements Runnable {
 					handler.addEntity(new TorchLight(xx * 32, yy * 32, ID.TorchLight, ssEntity, 150));
 				}
 				if (green == 255 && blue == 0)
-					handler.addMob(new Skeleton(xx * 32, yy * 32, ID.Enemy, ssMob, handler));
+					handler.addMob(new Skeleton(xx * 32, yy * 32, ID.Enemy, ssMob, handler, this));
 				if (blue == 255 && green == 255)
 					handler.addEntity(new Crate(xx * 32, yy * 32, ID.Crate, ssEntity));
 				if (r1.nextInt(3) == 1) {
@@ -270,8 +274,10 @@ public class Main extends Canvas implements Runnable {
 				}
 			}
 		}
+		
 	}
-
+	
+	
 	private void getNumEnemies() {
 		if (!checkLoopDone) {
 			numOfEnemies = 0;

@@ -1,9 +1,17 @@
 package squaredungeon.main;
 
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-import squaredungeon.gameObjects.*;
+import squaredungeon.gameObjects.Effect;
+import squaredungeon.gameObjects.Entity;
+import squaredungeon.gameObjects.ID;
+import squaredungeon.gameObjects.Mob;
+import squaredungeon.gameObjects.Tile;
 
 
 public class Handler {
@@ -12,6 +20,7 @@ public class Handler {
 	public ArrayList<Mob> mob = new ArrayList<Mob>();
 	public ArrayList<Effect> effect = new ArrayList<Effect>();
 	public ArrayList<Tile> tile = new ArrayList<Tile>();
+
 	
 	private boolean up = false, down = false, right = false, left = false;//movement for the player
 
