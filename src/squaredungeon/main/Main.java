@@ -51,20 +51,29 @@ public class Main extends Canvas implements Runnable {
 	public static final int WIDTH = (int) screenSize.getWidth();
 	public static final int HEIGHT = (int) screenSize.getHeight();
 
-	private boolean running = false;
+	private boolean running = false; //game loop shit
 	private Thread thread;
+	
 	private Handler handler;
 	private BufferedImageLoader loader = new BufferedImageLoader();
 	public static BufferedImage level = null;
-	private BufferedImage sprite_sheet = null;
+	
+	private BufferedImage sprite_sheet_tiles = null; //use the correct sprite sheet for the sprites pls thx boss
+	private BufferedImage sprite_sheet_mob = null;
+	private BufferedImage sprite_sheet_entity = null;
+	private BufferedImage sprite_sheet_effects = null;
+	
 	private Camera camera;
-	private SpriteSheet ss;
+	private SpriteSheet ssTile;
+	private SpriteSheet ssMob;
+	private SpriteSheet ssEntity;
+	private SpriteSheet ssEffect;
 	private BufferedImage floor = null;
 
-	private final int LEVEL_1_NUM_OF_ENEMIES = 40;
+	private final int LEVEL_1_NUM_OF_ENEMIES = 40; //stivi this shouldnt exist xd
 	private final int LEVEL_2_NUM_OF_ENEMIES = 40;
 
-	public static final float SCALE = 3f;
+	public static final float SCALE = 3f; //TODO a slider to increase/decrease this value, maybe bound to scroll wheel?
 
 	public int ammo = 100;
 	public int hp = 100;
@@ -90,13 +99,19 @@ public class Main extends Canvas implements Runnable {
 
 		level = loader.loadImage("/level_" + currentLevel + ".png");
 
-		sprite_sheet = loader.loadImage("/sprite_sheets/sprite_sheet.png");// TODO add sprite sheet
+		sprite_sheet_tiles = loader.loadImage("/sprite_sheets/sprite_sheet_tiles.png");// tiles sprite_sheet 
+		sprite_sheet_mob = loader.loadImage("/sprite_sheets/sprite_sheet_mobs.png"); // mob sprite_sheet
+		sprite_sheet_entity = loader.loadImage("/sprite_sheets/sprite_sheet_entities.png");// tiles sprite_sheet 
+		sprite_sheet_effects = loader.loadImage("/sprite_sheets/sprite_sheet_effects.png"); // mob sprite_sheet
 
-		ss = new SpriteSheet(sprite_sheet);
+		ssTile = new SpriteSheet(sprite_sheet_tiles);
+		ssMob = new SpriteSheet(sprite_sheet_mob);
+		ssEntity = new SpriteSheet(sprite_sheet_entity);
+		ssEffect = new SpriteSheet(sprite_sheet_effects);
 
-		floor = ss.grabImage(7, 1, 32, 32);
+		floor = ssTile.grabImage(7, 1, 32, 32);
 
-		this.addMouseListener(new MouseInput(handler, camera, this, ss));
+		this.addMouseListener(new MouseInput(handler, camera, this, ssEntity));
 
 		loadLevel(level);
 
@@ -125,7 +140,7 @@ public class Main extends Canvas implements Runnable {
 		for (int i = 0; i < handler.mob.size(); i++) {
 			Mob tempMob = handler.mob.get(i);
 			if (tempMob.getId() == ID.Player) {
-				camera.tick(tempMob);
+				camera.tick(tempMob); //move camera boy
 			}
 		}
 
@@ -136,7 +151,7 @@ public class Main extends Canvas implements Runnable {
 		levelComplete = false;
 	}
 
-	public void render() {
+	public synchronized void render() {
 		BufferStrategy bs = this.getBufferStrategy();
 		if (bs == null) {
 			this.createBufferStrategy(3);
@@ -195,7 +210,7 @@ public class Main extends Canvas implements Runnable {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+		//game loop
 		this.requestFocus();
 		long lastTime = System.nanoTime();
 		double amountOfTicks = 60.0;
@@ -228,7 +243,7 @@ public class Main extends Canvas implements Runnable {
 
 	// level loader
 
-	private void loadLevel(BufferedImage image) {
+	private void loadLevel(BufferedImage image) { //reads the colours of the level.png, loads different objects
 		int w = image.getWidth();
 		int h = image.getHeight();
 		Random r1 = new Random();
@@ -241,17 +256,17 @@ public class Main extends Canvas implements Runnable {
 				int fogX = r1.nextInt(w * 32);
 				int fogY = r1.nextInt(h * 32);
 				if (red == 255)
-					handler.addTile(new CobblestoneWall(xx * 32, yy * 32, ID.Block, ss, handler));
+					handler.addTile(new CobblestoneWall(xx * 32, yy * 32, ID.Block, ssTile, handler));
 				if (blue == 255 && green == 0) {
-					handler.addMob(new Player(xx * 32, yy * 32, handler, ID.Player, this, ss));
-					handler.addEntity(new TorchLight(xx * 32, yy * 32, ID.TorchLight, ss, 150));
+					handler.addMob(new Player(xx * 32, yy * 32, handler, ID.Player, this, ssMob));
+					handler.addEntity(new TorchLight(xx * 32, yy * 32, ID.TorchLight, ssEntity, 150));
 				}
 				if (green == 255 && blue == 0)
-					handler.addMob(new Skeleton(xx * 32, yy * 32, ID.Enemy, ss, handler));
+					handler.addMob(new Skeleton(xx * 32, yy * 32, ID.Enemy, ssMob, handler));
 				if (blue == 255 && green == 255)
-					handler.addEntity(new Crate(xx * 32, yy * 32, ID.Crate, ss));
+					handler.addEntity(new Crate(xx * 32, yy * 32, ID.Crate, ssEntity));
 				if (r1.nextInt(3) == 1) {
-					handler.addEffect(new Fog(fogX, fogY, ID.Fog, ss, r1.nextInt(100) + 40, 0));
+					handler.addEffect(new Fog(fogX, fogY, ID.Fog, ssEffect, r1.nextInt(100) + 40, 0));
 				}
 			}
 		}

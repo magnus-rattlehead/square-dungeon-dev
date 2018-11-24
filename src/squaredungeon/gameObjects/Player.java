@@ -13,7 +13,7 @@ public class Player extends Mob {
 
 
 	Main main;
-	private int spottedTimer = 1000;
+	private int spottedTimer = 1000; //how long it takes to stop the aggro of enemies
 	private BufferedImage player_image;// replace 0 with amount of player models
 	Animation anim;
 	
@@ -21,10 +21,10 @@ public class Player extends Mob {
 		super(x, y, id, ss);
 		this.handler = handler;
 		this.main = main;
-		player_image = ss.grabImage(32, 32, 32, 32); // placeholer
+		player_image = ss.grabImage(2, 1, 32, 32); // placeholder
 		
-		// player_image[1] = ss.grabImage(0, 0, 32, 32); //placeholer
-		// player_image[2] = ss.grabImage(0, 0, 32, 32); //placeholer
+		// player_image[1] = ss.grabImage(0, 0, 32, 32); //placeholder
+		// player_image[2] = ss.grabImage(0, 0, 32, 32); //placeholder
 		// ...
 
 		// anim = new Animation(1, player_image[0], player_image[0]);
@@ -32,7 +32,7 @@ public class Player extends Mob {
 
 	@Override
 	public void tick() {
-		if (spottedTimer <= 0) {
+		if (spottedTimer <= 0) { //this is just how long it takes to stop the aggro of enemies
 		
 			this.spottedPlayer = false;
 			spottedTimer = 1000;
@@ -41,12 +41,12 @@ public class Player extends Mob {
 			spottedTimer--;
 
 
-		collision(vx, vy);
+		collision(vx, vy); //check collisions 
 
-		vx = 0;
+		vx = 0; //reset velocity
 		vy = 0;
 		// movement
-		if (handler.isUp())
+		if (handler.isUp()) //setting velocity
 			vy -= 2;
 		// else if(!handler.isDown()) vy = 0;
 
@@ -72,13 +72,13 @@ public class Player extends Mob {
 		if (tempEntity.getId() == ID.Crate) {
 			if (getBounds().intersects(tempEntity.getBounds())) {
 				main.ammo += 50;
-				handler.removeEntity(tempEntity);
+				handler.removeEntity(tempEntity); //increase ammo when player touches an ammo crate
 			}
 		}
 		if (tempEntity.getId() == ID.EnemyPlayerCheck) {
 			if (getBounds().intersects(tempEntity.getBounds())) {
 				spottedPlayer = true;
-				handler.removeEntity(tempEntity);
+				handler.removeEntity(tempEntity); //player gets spotted if he gets hit by the enemy check object (check the EnemyPlayerCheck class for details)
 			}
 		}
 
@@ -90,7 +90,7 @@ public class Player extends Mob {
 			Tile tempTile = handler.tile.get(i);
 			if (tempTile.getId() == ID.Block) {
 				if (new Rectangle(x + (int) vx, y + (int) vy, 31, 31).intersects(tempTile.getBounds())) {
-					return true;
+					return true; //works ahead of the next movement to make sure your next movement doesnt allow you to go inside of a wall
 				}
 			}
 	
@@ -100,7 +100,7 @@ public class Player extends Mob {
 			Mob tempMob = handler.mob.get(i);
 		if (tempMob.getId() == ID.Enemy) {
 			if (getBounds().intersects(tempMob.getBounds())) {
-				//main.hp--;// TODO make it so you cant get stuck in enemies and they drain all your health
+				main.hp--;// TODO make it so you cant get stuck in enemies and they drain all your health
 			}
 		}
 		}
@@ -110,7 +110,7 @@ public class Player extends Mob {
 	public void Move(double vx, double vy) {
 		
 		if (!collision(vx, vy)) {
-			this.x += vx;
+			this.x += vx; //if you arent touching a wall, move by the velocity
 			this.y += vy;
 		}
 

@@ -18,7 +18,7 @@ public class KeyInput extends KeyAdapter {
 		int key = e.getKeyCode();
 		for (int i = 0; i < handler.mob.size(); i++) {
 			Mob tempMob = handler.mob.get(i);
-
+			//makes the player go left, right, or goodnight
 			if (tempMob.getId() == ID.Player) {
 				if (key == KeyEvent.VK_W)
 					handler.setUp(true);

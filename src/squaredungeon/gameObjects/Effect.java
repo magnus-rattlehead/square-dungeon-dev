@@ -10,10 +10,8 @@ public abstract class Effect{
 
 
 	protected Handler handler;
-	protected double vx = 0;
+	protected double vx = 0; //velocity
 	protected double vy = 0;
-	protected int y2;
-	protected int x2;
 	protected int x, y;
 	protected ID id;
 	protected SpriteSheet ss;

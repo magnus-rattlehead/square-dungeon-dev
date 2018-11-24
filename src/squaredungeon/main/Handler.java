@@ -7,18 +7,18 @@ import squaredungeon.gameObjects.*;
 
 
 public class Handler {
-	
+	//make a list of all objects in the game, all in an organized group
 	public ArrayList<Entity> entity = new ArrayList<Entity>();
 	public ArrayList<Mob> mob = new ArrayList<Mob>();
 	public ArrayList<Effect> effect = new ArrayList<Effect>();
 	public ArrayList<Tile> tile = new ArrayList<Tile>();
 	
-	private boolean up = false, down = false, right = false, left = false;
+	private boolean up = false, down = false, right = false, left = false;//movement for the player
 
 	public synchronized void tick() {
 
 
-
+		//call tick in all objects
 		for (int i = 0; i < effect.size(); i++) {
 			Effect tempEffect = effect.get(i);
 			tempEffect.tick();
@@ -39,7 +39,7 @@ public class Handler {
 
 	public synchronized void render(Graphics g) {
 	
-
+		//call render in all objects
 		for (int i = 0; i < mob.size(); i++) {
 			Mob tempMob = mob.get(i);
 			tempMob.render(g);

@@ -11,7 +11,8 @@ import squaredungeon.gfx.Animation;
 import squaredungeon.gfx.SpriteSheet;
 
 public class TorchLight extends Entity {
-
+	//ALL OF THIS IS PROBABLY TEMP
+	//TODO OPENGL LIGHTING
 	private int counter2 = 1;
 	private boolean less = false;
 	Random random = new Random();
@@ -23,11 +24,11 @@ public class TorchLight extends Entity {
 
 	public TorchLight(int x, int y, ID id, SpriteSheet ss, int Size) {
 		super(x, y, id, ss);
-		TorchLight = ss.grabImage(3, 32, 32, 32);
+		TorchLight = ss.grabImage(2, 4, 32, 32);
 
-		torch_image[0] = ss.grabImage(2, 29, 32, 32);
-		torch_image[1] = ss.grabImage(3, 29, 32, 32);
-		torch_image[2] = ss.grabImage(4, 29, 32, 32);
+		torch_image[0] = ss.grabImage(2, 1, 32, 32);
+		torch_image[1] = ss.grabImage(2, 2, 32, 32);
+		torch_image[2] = ss.grabImage(2, 3, 32, 32);
 
 		anim = new Animation(3, torch_image[0], torch_image[1], torch_image[2]);
 		this.size = Size;

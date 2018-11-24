@@ -9,12 +9,12 @@ import squaredungeon.main.Handler;
 
 public class CobblestoneWall extends Tile {
 
-	private boolean activated = false;
+	private int counter = 99;
 	private BufferedImage block_image;
 	private BufferedImage block_image1, block_image2, block_image3, block_image4, block_image5, block_image6,
-			block_image7, block_image8, block_image9, block_image10, block_image11, block_image12, block_image13;
+			block_image7, block_image8, block_image9, block_image10, block_image11, block_image12;
 	private Handler handler;
-	private boolean checkedRight = false;
+	private boolean checkedRight = false; // checks if there are blocks on right
 	private boolean checkedLeft = false;
 	private boolean checkedUp = false;
 	private boolean checkedDown = false;
@@ -25,122 +25,124 @@ public class CobblestoneWall extends Tile {
 		super(x, y, id, ss);
 		this.handler = handler;
 
-		block_image = ss.grabImage(28, 2, 32, 32); // placeholer, replace later
-		block_image1 = ss.grabImage(28, 1, 32, 32);
-		block_image2 = ss.grabImage(27, 1, 32, 32);
-		block_image3 = ss.grabImage(27, 3, 32, 32);
-		block_image4 = ss.grabImage(27, 5, 32, 32);
-		block_image5 = ss.grabImage(28, 2, 32, 32);
-		block_image6 = ss.grabImage(28, 5, 32, 32);
-		block_image7 = ss.grabImage(27, 2, 32, 32);
-		block_image8 = ss.grabImage(28, 3, 32, 32);
-		block_image9 = ss.grabImage(28, 2, 32, 32);
-		block_image10 = ss.grabImage(28, 4, 32, 32);
-		block_image11 = ss.grabImage(27, 6, 32, 32);
-		block_image12 = ss.grabImage(27, 4, 32, 32);
-		block_image13 = ss.grabImage(28, 6, 32, 32);
+		block_image = ss.grabImage(32, 2, 32, 32); // all the images of the block depending on neighbouring blocks
+		block_image1 = ss.grabImage(32, 1, 32, 32);
+		block_image2 = ss.grabImage(31, 1, 32, 32);
+		block_image3 = ss.grabImage(31, 3, 32, 32);
+		block_image4 = ss.grabImage(31, 5, 32, 32);
+		block_image5 = ss.grabImage(32, 2, 32, 32);
+		block_image6 = ss.grabImage(32, 5, 32, 32);
+		block_image7 = ss.grabImage(31, 2, 32, 32);
+		block_image8 = ss.grabImage(32, 3, 32, 32);
+		block_image9 = ss.grabImage(32, 2, 32, 32);
+		block_image10 = ss.grabImage(32, 4, 32, 32);
+		block_image10 = ss.grabImage(31, 6, 32, 32);
+		block_image11 = ss.grabImage(31, 4, 32, 32);
+		block_image12 = ss.grabImage(32, 6, 32, 32);
 
 	}
 
 	@Override
 	public void tick() {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public synchronized void render(Graphics g) {
-		// TODO Auto-generated method stub
-
-		if (!this.activated && this.checkForNeighbours(this.x, this.y) == 1) {// all neighbours
-			block_image = block_image1;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 2) {// no neighbours
-			block_image = block_image2;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 3) {// done
-			block_image = block_image3;
-			flip = true;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 4) {// done
-			block_image = block_image3;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 5) {
-			block_image = block_image4;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 6) {
-			block_image = block_image5;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 7) {
-			block_image = block_image6;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 8) {
-			flip = true;
-			block_image = block_image7;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 9) {
-			flip = true;
-			block_image = block_image8;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 10) {
-			block_image = block_image7;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 11) {
-			block_image = block_image8;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 12) {
-			block_image = block_image9;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 13) {
-			block_image = block_image11;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 14) {
-			flip = true;
-			block_image = block_image12;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 15) {
-			block_image = block_image12;
-			this.activated = true;
-		} else if (!this.activated && this.checkForNeighbours(this.x, this.y) == 16) {
-			block_image = block_image13;
-			this.activated = true;
+		counter++;
+		if(counter % 100 == 0) {//every 100 ticks, check if the neighbours are still gucci (just incase there was an error when loading the level if the user has a shitty pc)
+			switch (this.checkForNeighbours(this.x, this.y)) { //loads different images for different neighbouring blocks
+			case 1:
+				block_image = block_image1;
+				break;
+			case 2:
+				block_image = block_image2;
+				break;
+			case 3:
+				block_image = block_image3;
+				flip = true;
+				break;
+			case 4:
+				block_image = block_image3;
+				break;
+			case 5:
+				block_image = block_image4;
+				break;
+			case 6:
+				block_image = block_image5;
+				break;
+			case 7:
+				block_image = block_image6;
+				break;
+			case 8:
+				block_image = block_image7;
+				flip = true;
+				break;
+			case 9:
+				block_image = block_image8;
+				flip = true;
+				break;
+			case 10:
+				block_image = block_image7;
+				break;
+			case 11:
+				block_image = block_image8;
+				break;
+			case 12:
+				block_image = block_image9;
+				break;
+			case 13:
+				block_image = block_image10;
+				break;
+			case 14:
+				block_image = block_image11;
+				flip = true;
+				break;
+			case 15:
+				block_image = block_image11;
+				break;
+			case 16:
+				block_image = block_image12;
+				break;
+			}
 		}
-
-		if (!flip) {
-			g.drawImage(block_image,   x,   y, 32, 32, null);
-		}
-
-		else {
-			g.drawImage(block_image,   x + 32,   y, -32, 32, null);
-		}
+		
+			if (!flip) {
+				g.drawImage(block_image, x, y, 32, 32, null); //draw that shit
+			}
+	
+			else {
+				g.drawImage(block_image, x + 32, y, -32, 32, null); //flips horizontally
+			}
+		
 	}
 	// g.fillRect(rightRect.x,rightRect.y,32,32);
 
 	public Rectangle getBounds() {
-		// TODO Auto-generated method stub
-		return new Rectangle(  x,   y, 32, 32);
+				return new Rectangle(x, y, 32, 32);
 	}
 
 	protected synchronized int checkForNeighbours(int x, int y) {
+		int check = 0;
 		for (int i = 0; i < handler.tile.size(); i++) {
 
 			Tile tempTile0 = handler.tile.get(i);
 			if (tempTile0.id == ID.Block) {
-				if (new Rectangle(  x + 32,   y, 32, 32).intersects(tempTile0.getBounds())) {
+				if (new Rectangle(x + 32, y, 32, 32).intersects(tempTile0.getBounds())) { //all of this just checks for tiles neighbouring
 					checkedRight = true;
 				}
 			}
 
 			Tile tempTile1 = handler.tile.get(i);
 			if (tempTile1.id == ID.Block) {
-				if (new Rectangle(  x - 32,   y, 32, 32).intersects(tempTile1.getBounds())) {
+				if (new Rectangle(x - 32, y, 32, 32).intersects(tempTile1.getBounds())) {
 					checkedLeft = true;
 				}
 			}
 
 			Tile tempTile2 = handler.tile.get(i);
 			if (tempTile2.id == ID.Block) {
-				if (new Rectangle(  x,   y + 32, 32, 32).intersects(tempTile2.getBounds())) {
+				if (new Rectangle(x, y + 32, 32, 32).intersects(tempTile2.getBounds())) {
 					checkedDown = true;
 				}
 
@@ -148,11 +150,12 @@ public class CobblestoneWall extends Tile {
 
 			Tile tempTile3 = handler.tile.get(i);
 			if (tempTile3.id == ID.Block) {
-				if (new Rectangle(  x,   y - 32, 32, 32).intersects(tempTile3.getBounds())) {
+				if (new Rectangle(x, y - 32, 32, 32).intersects(tempTile3.getBounds())) {
 					checkedUp = true;
 				}
 			}
 		}
+		//checks all possibilities using intersections with a new rectangle
 		if (checkedRight && checkedLeft && checkedUp && checkedDown) {
 			return 1;
 		}
@@ -202,7 +205,7 @@ public class CobblestoneWall extends Tile {
 			return 16;
 		}
 
-		return 0;
+		return check;
 
 	}
 

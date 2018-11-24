@@ -13,9 +13,9 @@ public class Skeleton extends Mob{
 	protected double vx, vy;
 	Random r = new Random();
 	private int hp = 100;
-	private int animNum = 1;
+	private int animNum = 1;//TEMP ANIMATION, REPLACING WITH NEW SYSTEM SOON.
 	private int counter = 1;
-	private int speedMultiplier = r.nextInt(5)+5;
+	private int speedMultiplier = r.nextInt(5)+5;//temp, just so enemies dont mesh inside eachother
 	private BufferedImage enemy1_image;
 	private Handler handler;
 
@@ -37,7 +37,7 @@ public class Skeleton extends Mob{
 		counter++;
 		if(counter % 20 == 0) {
 			
-			animNum++;
+			animNum++; //TEMP
 			
 		}
 		if(animNum == 5) animNum = 1;
@@ -48,14 +48,14 @@ public class Skeleton extends Mob{
 			Mob tempMob = handler.mob.get(j);
 			if(tempMob.getId() == id.Player)
 				handler.addEntity(new EnemyPlayerCheck(this.x+16, this.y+16, ID.EnemyPlayerCheck, handler, tempMob.x, tempMob.y, ss));
-			
-			if (tempMob.spottedPlayer == true && Math.hypot(tempMob.x-x, tempMob.y-fy) < 350) {
-				double angle = Math.atan2(tempMob.y+16 - fy, tempMob.x+16 - fx);
-		        vx = (10*Math.cos(angle));
+				// makes a enemyplayercheck angled to the player(check the enemeyplayer check class for what that does.
+			if (tempMob.spottedPlayer == true && Math.hypot(tempMob.x-x, tempMob.y-fy) < 350) {//go to the spotted player if hes 350 pixels or closer
+				double angle = Math.atan2(tempMob.y+16 - fy, tempMob.x+16 - fx);// angle towards the player
+		        vx = (10*Math.cos(angle));//set velocity to the angle
 		        vy = (10*Math.sin(angle));
 		       
 				if(vx!=0||vy!=0){
-			        Move(vx,0);
+			        Move(vx,0);//moves if velocity isnt 0
 					Move(0,vy);
 			        
 			        }
@@ -70,14 +70,14 @@ public class Skeleton extends Mob{
 		if(tempEntity.getId() == ID.Bullet) {
 			if(getBounds().intersects(tempEntity.getBounds())) {
 				this.hp-=50;
-				handler.removeEntity(tempEntity);
+				handler.removeEntity(tempEntity);//loses 50 hp from bullet then destroys the bullet
 			}
 		}
 	}
 		
-		if(hp<=0) handler.removeMob(this);
+		if(hp<=0) handler.removeMob(this);//death
 		
-		x = (int) this.fx;
+		x = (int) this.fx;//set the x and y to the float x and y (lots of decimal calculations with angles)
 		y = (int) this.fy;
      
 		}
@@ -85,7 +85,7 @@ public class Skeleton extends Mob{
 	
 	public void Move(double vx, double vy) {
 		 if(!collision(vx, vy)) {
-			fx+=vx/5;
+			fx+=vx/5;//move
 			fy+=vy/5;
 		 }
 		}
@@ -98,7 +98,7 @@ public class Skeleton extends Mob{
 
 			if(tempMob.getId() == ID.Player) {
 			if(new Rectangle(x+(int)vx*2,y+(int)vy*2,32,32).intersects(tempMob.getBounds())) {
-				
+				//dont go inside of the player to hit him
 				return true;
 				
 			}
@@ -109,7 +109,7 @@ public class Skeleton extends Mob{
 			Tile tempTile = handler.tile.get(i);
 			if (tempTile.getId() == ID.Block) {
 				if (new Rectangle(x + (int) vx, y + (int) vy, 31, 31).intersects(tempTile.getBounds())) {
-					return true;
+					return true;//wall collision
 				}
 			}
 	
@@ -124,11 +124,11 @@ public class Skeleton extends Mob{
 	//	g.setColor(Color.RED);
 		//g.fillRect((int)this.x+(int)vx,(int)this.y+(int)vy,32,32);
 		//anim.drawAnimation(g, x, y, 0);
-		enemy1_image = ss.grabImage(27+animNum, 32, 32, 32);
+		enemy1_image = ss.grabImage(1, animNum, 32, 32);
 		if(vx>0) {
 		g.drawImage(enemy1_image, x, y, 32,32,null);
 		}
-		else {
+		else {//flips the sprite on x axis if going left
 		g.drawImage(enemy1_image, x+32,y, -32,32,null);
 		}
 		
@@ -136,12 +136,10 @@ public class Skeleton extends Mob{
 
 	@Override
 	public Rectangle getBounds() {
-		// TODO Auto-generated method stub
 		return new Rectangle(x,y,32,32);
 	}
 	
 	public Rectangle getBoundsBig() {
-		// TODO Auto-generated method stub
 		return new Rectangle((int)fx-32,(int)fy-32,64,64);
 	}
 

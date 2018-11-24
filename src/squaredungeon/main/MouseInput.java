@@ -24,7 +24,7 @@ public class MouseInput extends MouseAdapter {
 	}
 
 	public void mousePressed(MouseEvent e) {
-		float mx = (e.getX() / Main.SCALE + camera.getX());
+		float mx = (e.getX() / Main.SCALE + camera.getX()); //get mouse relative to camera position
 		float my = (e.getY() / Main.SCALE + camera.getY());
 
 		for (int i = 0; i < handler.entity.size(); i++) {

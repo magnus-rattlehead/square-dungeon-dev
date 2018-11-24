@@ -15,15 +15,15 @@ public class Bullet extends Entity {
 		this.handler = handler;
 
 		int bv = Weapon.get().getBulletVelocity();
-		double angle = Math.atan2(my - y, mx - x);
-		vx = (float) ((bv) * Math.cos(angle));
+		double angle = Math.atan2(my - y, mx - x); //find the angle of the mouse 
+		vx = (float) ((bv) * Math.cos(angle)); //zoom zoom towards that angle 
 		vy = (float) ((bv) * Math.sin(angle));
 
 	}
 
 	@Override
 	public void tick() {
-		x += vx;
+		x += vx; //move every tick
 		y += vy;
 
 		for (int i = 0; i < handler.tile.size(); i++) {
@@ -31,7 +31,7 @@ public class Bullet extends Entity {
 
 			if (tempTile.getId() == ID.Block) {
 				if (getBounds().intersects(tempTile.getBounds()))
-					handler.removeEntity(this);
+					handler.removeEntity(this); //if it hits a block it DIES
 			}
 
 		}
@@ -39,13 +39,13 @@ public class Bullet extends Entity {
 
 	@Override
 	public void render(Graphics g) {
-		g.setColor(Color.CYAN);
+		g.setColor(Color.CYAN); //TODO Make a sexy bullet sprite
 		g.fillOval(x, y, 8, 8);
 	}
 
 	@Override
 	public Rectangle getBounds() {
-		return new Rectangle(x, y, 8, 8);
+		return new Rectangle(x, y, 8, 8);//TODO make this class an abstract and have different sized bullets
 	}
 
 }
