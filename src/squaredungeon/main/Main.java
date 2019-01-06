@@ -21,6 +21,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import squaredungeon.gameObjects.CobblestoneWall;
+import squaredungeon.gameObjects.BrickWall;
 import squaredungeon.gameObjects.Camera;
 import squaredungeon.gameObjects.Crate;
 import squaredungeon.gameObjects.ID;
@@ -58,6 +61,7 @@ public class Main extends Canvas implements Runnable {
 	private boolean running = false; //game loop shit
 	private Thread thread;
 	
+	private int floors[];
 	private Handler handler;
 	private static BufferedImageLoader loader = new BufferedImageLoader();
 	public static BufferedImage level = null;
@@ -67,17 +71,17 @@ public class Main extends Canvas implements Runnable {
 	private static BufferedImage sprite_sheet_entity = null;
 	private static BufferedImage sprite_sheet_effects = null;
 	
-	private Camera camera;
+	public Camera camera;
 	private SpriteSheet ssTile;
 	private SpriteSheet ssMob;
 	private SpriteSheet ssEntity;
 	private SpriteSheet ssEffect;
-	private BufferedImage floor = null;
+	private BufferedImage grass1,grass2,grass3,grass4,grass5,fogHorizontal, fogVerticle = null;
 
 	private final int LEVEL_1_NUM_OF_ENEMIES = 40; //stivi this shouldnt exist xd
 	private final int LEVEL_2_NUM_OF_ENEMIES = 40;
 
-	public static final float SCALE = 3f; //TODO a slider to increase/decrease this value, maybe bound to scroll wheel?
+	public static final float SCALE = 5f; //TODO a slider to increase/decrease this value, maybe bound to scroll wheel?
 
 	public int ammo = 100;
 	public int hp = 100;
@@ -85,7 +89,10 @@ public class Main extends Canvas implements Runnable {
 	public static int numOfEnemies = 0;
 	public static boolean levelComplete = false;
 	public static boolean checkLoopDone = false;
-
+	public int level_width, level_height;
+	
+	
+	
 	// weapons and other items taht will be initialized in initItems
 	public static Weapon pistol;
 	public static Weapon smg;
@@ -102,7 +109,9 @@ public class Main extends Canvas implements Runnable {
 		this.addKeyListener(new KeyInput(handler));
 
 		level = loader.loadImage("/level_" + currentLevel + ".png");
-
+		level_width = level.getWidth();
+		level_height = level.getHeight();
+		
 		sprite_sheet_tiles = loader.loadImage("/sprite_sheets/sprite_sheet_tiles.png");// tiles sprite_sheet 
 		sprite_sheet_mob = loader.loadImage("/sprite_sheets/sprite_sheet_mobs.png"); // mob sprite_sheet
 		sprite_sheet_entity = loader.loadImage("/sprite_sheets/sprite_sheet_entities.png");// tiles sprite_sheet 
@@ -113,7 +122,14 @@ public class Main extends Canvas implements Runnable {
 		ssEntity = new SpriteSheet(sprite_sheet_entity);
 		ssEffect = new SpriteSheet(sprite_sheet_effects);
 
-		floor = ssTile.grabImage(7, 1, 32, 32);
+		grass1 = ssTile.grabImage(7, 1, 32, 32);
+		grass2 = ssTile.grabImage(1, 2, 32, 32);
+		grass3 = ssTile.grabImage(1, 3, 32, 32);
+		grass4 = ssTile.grabImage(1, 4, 32, 32);
+		grass5 = ssTile.grabImage(1, 5, 32, 32);
+		fogHorizontal = ssTile.grabImage(2, 32, 32, 32);
+		fogVerticle = ssTile.grabImage(1, 32, 32, 32);
+		
 
 		this.addMouseListener(new MouseInput(handler, camera, this, ssEntity));
 
@@ -143,7 +159,7 @@ public class Main extends Canvas implements Runnable {
 
 		for (int i = 0; i < handler.mob.size(); i++) {
 			Mob tempMob = handler.mob.get(i);
-			if (tempMob.getId() == ID.Player) {
+			if (tempMob.getId() == ID.PLAYER) {
 				camera.tick(tempMob); //move camera boy
 			}
 		}
@@ -176,10 +192,37 @@ public class Main extends Canvas implements Runnable {
 		}
 
 		// TODO uncomment when sprite sheet complete
-
-		for (int xx = 0; xx < 30 * 72; xx += 32) {
-			for (int yy = 0; yy < 30 * 72; yy += 32) {
-				g.drawImage(floor, xx, yy, null);
+	
+	
+		for (int xx = -32; xx < 32 * (level_width + 1); xx += 32) {
+			for (int yy = -32; yy < 32 * (level_height + 1); yy += 32) { //draw floor tiles and fog
+			/*	if(((xx/32)*(yy/32) + 1) % 7 == 0)
+					g.drawImage(grass1, xx, yy,null);
+				else if(((xx/32)*(yy/32) + 1) % 6 == 0)
+					g.drawImage(grass5, xx, yy,null);
+				else if(((xx/32)*(yy/32) + 1) % 5 == 0)
+					g.drawImage(grass3, xx, yy,null);
+				else if(((xx/32)*(yy/32) + 1) % 4 == 0)
+					g.drawImage(grass4, xx, yy,null);
+				else {
+					g.drawImage(grass2, xx, yy,null);
+				}
+				*/
+			if(xx == -32) {
+				g.drawImage(fogHorizontal, xx+34, yy,-32,32,null);
+			}
+			else if(yy == -32) {
+				g.drawImage(fogVerticle, xx, yy+4,32,32,null);
+			}
+			else if(xx == 32 * (level_width) && yy != 32 * (level_height)) {
+				g.drawImage(fogHorizontal, xx, yy,32, 32,null);
+			}
+			else if(xx != 32 * (level_width) && yy == 32 * (level_height)) {
+				g.drawImage(fogVerticle, xx, yy+32,32,-32,null);
+			}
+			else if(xx > 0 && yy > 0 && xx < level_width * 32 && yy < level_height * 32){
+			g.drawImage(grass1, xx, yy,null);
+			}
 			}
 		}
 
@@ -187,27 +230,14 @@ public class Main extends Canvas implements Runnable {
 
 		if (level != null) { // once the level is found, add a tint
 		
-			g.setColor(new Color(5, 5, 100, 20));
+			g.setColor(new Color(0, 0, 100, 20));
 			g.fillRect(0, 0, level.getWidth() * 32, level.getHeight() * 32);
+			g2d.translate(camera.getX(), camera.getY());
 		}
-		g2d.translate(camera.getX(), camera.getY());
+		
+		
 
-		// HUD//
-
-		// Health Bar
-		g.setColor(Color.GRAY);
-		g.fillRect(5, 5, 200, 32);
-		g.setColor(Color.GREEN);
-		g.fillRect(5, 5, hp * 2, 32);
-		g.setColor(Color.BLACK);
-		g.drawRect(5, 5, 200, 32);
-
-		// Ammo Display
-
-		g.setColor(Color.WHITE);
-		// g.drawString("Ammo: " + Weapon.get().getMagSize() + "/" +
-		// Weapon.get().getMaxAmmo(), 5, 64);
-		////////////////////////////////////
+		
 		g.dispose();
 		bs.show();
 	}
@@ -229,12 +259,11 @@ public class Main extends Canvas implements Runnable {
 			lastTime = now;
 			while (delta >= 1) {
 				tick();
-
 				delta--;
 			}
-			render();
-			frames++;
 
+			frames++;
+			render();
 			if (System.currentTimeMillis() - timer > 1000) {
 				System.out.println(frames);
 				timer += 1000;
@@ -259,18 +288,20 @@ public class Main extends Canvas implements Runnable {
 				int blue = (pixel) & 0xff;
 				int fogX = r1.nextInt(w * 32);
 				int fogY = r1.nextInt(h * 32);
-				if (red == 255)
-					handler.addTile(new CobblestoneWall(xx * 32, yy * 32, ID.Block, ssTile, handler));
-				if (blue == 255 && green == 0) {
-					handler.addMob(new Player(xx * 32, yy * 32, handler, ID.Player, this, ssMob));
-					handler.addEntity(new TorchLight(xx * 32, yy * 32, ID.TorchLight, ssEntity, 150));
+				if (red == 255 && blue == 0 && green == 0)
+					handler.addTile(new CobblestoneWall(xx * 32, yy * 32, ID.SOLIDTILE, ssTile, handler));
+				else if (red == 255 && blue == 255 && green == 0)
+					handler.addTile(new BrickWall(xx * 32, yy * 32, ID.SOLIDTILE, ssTile, handler));
+				else if (blue == 255 && green == 0) {
+					handler.addMob(new Player(xx * 32, yy * 32, handler, ID.PLAYER, ssMob, 100));
+					handler.addEntity(new TorchLight(xx * 32, yy * 32, ID.TORCH, ssEntity, 55));
 				}
-				if (green == 255 && blue == 0)
-					handler.addMob(new Skeleton(xx * 32, yy * 32, ID.Enemy, ssMob, handler, this));
-				if (blue == 255 && green == 255)
-					handler.addEntity(new Crate(xx * 32, yy * 32, ID.Crate, ssEntity));
-				if (r1.nextInt(3) == 1) {
-					handler.addEffect(new Fog(fogX, fogY, ID.Fog, ssEffect, r1.nextInt(100) + 40, 0));
+				else if (green == 255 && blue == 0)
+					handler.addMob(new Skeleton(xx * 32, yy * 32, ID.ENEMY, ssMob, handler, hp));
+				else if (blue == 255 && green == 255)
+					handler.addEntity(new Crate(xx * 32, yy * 32, ID.CRATE, ssEntity));
+				else if (r1.nextInt(3) == 1) {
+					handler.addEffect(new Fog(fogX, fogY, ID.FOG, ssEffect, r1.nextInt(100) + 40, 0));
 				}
 			}
 		}
@@ -283,7 +314,7 @@ public class Main extends Canvas implements Runnable {
 			numOfEnemies = 0;
 			for (int i = 0; i < handler.mob.size(); i++) {
 				Mob tempMob = handler.mob.get(i);
-				if (tempMob.getId() == ID.Enemy) {
+				if (tempMob.getId() == ID.ENEMY) {
 					numOfEnemies++;
 					/*
 					 * TODO Once multiple levels are added, make new constant variables for evey

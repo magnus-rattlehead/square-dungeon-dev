@@ -74,7 +74,7 @@ public class PathFinder {
 		//if(x<0 || x>Main.WIDTH || y<0 || y > Main.HEIGHT) return true;
 	for (int i = 0; i < handler.tile.size(); i++) {
 		Tile tempTile = handler.tile.get(i);
-		if(tempTile.getId() == ID.Block) {
+		if(tempTile.getId() == ID.SOLIDTILE) {
 		if(new Rectangle(x << 5,y << 5,32,32).intersects(tempTile.getBounds())) {
 			return true;
 		}

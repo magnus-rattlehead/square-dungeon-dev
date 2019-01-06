@@ -20,7 +20,7 @@ public class TorchLight extends Entity {
 	private BufferedImage[] torch_image = new BufferedImage[3];
 	Animation anim;
 
-	private int size;
+	private float size;
 
 	public TorchLight(int x, int y, ID id, SpriteSheet ss, int Size) {
 		super(x, y, id, ss);
@@ -52,15 +52,16 @@ public class TorchLight extends Entity {
 
 	@Override
 	public void render(Graphics g) {
-		anim.drawAnimation(g, x - 13, y - 13, 0);
+		
+		anim.drawAnimation(g, x-6 , y-6, 12, 12, 0);
 
 		// g.drawImage(torch_image, (int) x-8, (int) y-8, 16, 16, null);
 		if (less) {
-			size = (int) ((size + counter2 / 19));
-			g.drawImage(TorchLight, (int) x - size / 2, (int) y - size / 2, size, size, null);
+			size-=0.05f;
+			g.drawImage(TorchLight, (int) x - (int)size / 2, (int) y - (int)size / 2, (int)size, (int)size, null);
 		} else {
-			size = (int) ((size - counter2 / 19));
-			g.drawImage(TorchLight, (int) x - size / 2, (int) y - size / 2, size, size, null);
+			size+=0.05f;
+			g.drawImage(TorchLight, (int) x - (int)size / 2, (int) y - (int)size / 2, (int)size, (int)size, null);
 		}
 
 	}

@@ -1,5 +1,5 @@
 package squaredungeon.gameObjects;
 
 public enum ID {
-	Player(), Block(), Floor(), Crate(), Bullet(), Weapon(), Enemy(), EnemyPlayerCheck(), Fog(), TorchLight(),
+	PLAYER(), SOLIDTILE(), FLOOR(), CRATE(), BULLET(), WEAPON(), ENEMY(), ENEMYPLAYERCHECK(), FOG(), TORCH(),
 }

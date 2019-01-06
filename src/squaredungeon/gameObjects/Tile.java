@@ -10,6 +10,7 @@ public abstract class Tile{
 	protected Handler handler;
 	protected double vx = 0;
 	protected double vy = 0;
+	protected boolean WalkwayTile = false;
 
 	protected int x, y;
 	protected ID id;
@@ -57,4 +58,5 @@ public abstract class Tile{
 	protected synchronized int checkForNeighbours(int x, int y) {
 		return 0;
 	}
+	
 }

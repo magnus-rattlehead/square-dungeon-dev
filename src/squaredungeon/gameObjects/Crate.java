@@ -34,7 +34,7 @@ public class Crate extends Entity {
 
 	@Override
 	public void render(Graphics g) {
-		anim.drawAnimation(g, x, y, 0);
+		anim.drawAnimation(g, x, y, 32 , 32, 0);
 	}
 
 	@Override

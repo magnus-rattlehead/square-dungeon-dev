@@ -34,7 +34,7 @@ public class EnemyPlayerCheck extends Entity
 			Mob tempMob = handler.mob.get(i);
 			
 	
-			if(tempMob.getId() == ID.Player) {
+			if(tempMob.getId() == ID.PLAYER) {
 				if(getBounds().intersects(tempMob.getBounds())) {
 					tempMob.spottedPlayer = true;
 					handler.removeEntity(this);	
@@ -46,7 +46,7 @@ public class EnemyPlayerCheck extends Entity
 		
 		for(int i = 0; i < handler.tile.size(); i++) {
 			Tile tempTile = handler.tile.get(i);
-			if(tempTile.getId() == ID.Block) {
+			if(tempTile.getId() == ID.SOLIDTILE) {
 				
 					if(getBounds().intersects(tempTile.getBounds())) handler.removeEntity(this);	
 				

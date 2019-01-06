@@ -29,7 +29,7 @@ public class Bullet extends Entity {
 		for (int i = 0; i < handler.tile.size(); i++) {
 			Tile tempTile = handler.tile.get(i);
 
-			if (tempTile.getId() == ID.Block) {
+			if (tempTile.getId() == ID.SOLIDTILE) {
 				if (getBounds().intersects(tempTile.getBounds()))
 					handler.removeEntity(this); //if it hits a block it DIES
 			}

@@ -551,8 +551,8 @@ public class Animation {
 		}
 	}
 
-	public void drawAnimation(Graphics g, int x, int y, int offset) {
-		g.drawImage(currentImg, x - offset, y, null); // draw the current image of the animation
+	public void drawAnimation(Graphics g, int x, int y, int w, int h, int offset) {
+		g.drawImage(currentImg, x - offset, y, w, h, null); // draw the current image of the animation
 	}
 
 	public void setCount(int count) {

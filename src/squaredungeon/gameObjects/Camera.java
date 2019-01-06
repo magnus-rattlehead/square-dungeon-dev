@@ -11,17 +11,9 @@ public class Camera {
 	}
 
 	public void tick(Mob mob) {
-		x += ((mob.getX() - x) - Main.WIDTH / 2 / Main.SCALE) * 0.05f; // follows the player with an offset (the float at the end is the ACCELERATION)
-		y += ((mob.getY() - y) - Main.HEIGHT / 2 / Main.SCALE) * 0.05f;
+		x += ((mob.getX()+16 - x) - Main.WIDTH / 2 / Main.SCALE) * 0.05f; // follows the player with an offset (the float at the end is the ACCELERATION)
+		y += ((mob.getY()+16 - y) - Main.HEIGHT / 2 / Main.SCALE) * 0.05f;
 
-		if (x <= 0) //stops the camera from going past the map bounds
-			x = 0;
-		if (x >= Main.WIDTH + 32)
-			x = Main.WIDTH + 32;
-		if (y <= 0)
-			y = 0;
-		if (y >= Main.HEIGHT + 48)
-			y = Main.HEIGHT + 48;
 	}
 
 	public float getX() {

@@ -47,8 +47,18 @@ public class Handler {
 	}
 
 	public synchronized void render(Graphics g) {
-	
 		//call render in all objects
+
+
+
+		for (int i = 0; i < mob.size(); i++) {
+			Mob tempMob = mob.get(i);
+			tempMob.renderBottomHalf(g);
+		}
+		for (int i = 0; i < tile.size(); i++) {
+			Tile tempTile = tile.get(i);
+			tempTile.render(g);
+		}
 		for (int i = 0; i < mob.size(); i++) {
 			Mob tempMob = mob.get(i);
 			tempMob.render(g);
@@ -56,10 +66,6 @@ public class Handler {
 		for (int i = 0; i < entity.size(); i++) {
 			Entity tempEntity = entity.get(i);
 			tempEntity.render(g);
-		}
-		for (int i = 0; i < tile.size(); i++) {
-			Tile tempTile = tile.get(i);
-			tempTile.render(g);
 		}
 		for (int i = 0; i < effect.size(); i++) {
 			Effect tempEffect = effect.get(i);

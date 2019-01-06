@@ -19,21 +19,25 @@ public class Skeleton extends Mob{
 	protected double vx, vy;
 	private List<Node> path = null;
 	Random r = new Random();
-	private int hp = 100;
+	
 	private int animNum = 1;//TEMP ANIMATION, REPLACING WITH NEW SYSTEM SOON.
 	private int counter = 1;
 	private int speedMultiplier = r.nextInt(5)+5;//temp, just so enemies dont mesh inside eachother
-	private BufferedImage enemy1_image;
+	private BufferedImage enemy1_image_top;
+	private BufferedImage enemy1_image_bottom;
 	private Handler handler;
 	private Main main;
+	private int dir = 1;
+	private float cooldown = 0f;
+	private float cooldownDuration = 5f;
 	//Animation anim;
-	public Skeleton(int x, int y, ID id, SpriteSheet ss, Handler handler, Main main) {
-		super(x, y, id, ss);
+	public Skeleton(int x, int y, ID id, SpriteSheet ss, Handler handler, int hp) {
+		super(x, y, id, ss, hp);
 		pathfinder = new PathFinder(handler);
 		fx = x;
 		fy = y;
 		this.handler = handler;
-		this.main = main;
+		
 		//anim = new Animation(y, enemy1_image, enemy1_image, enemy1_image);
 	}
 
@@ -42,11 +46,11 @@ public class Skeleton extends Mob{
 
 	@Override
 	public void tick() {
-	
+		cooldown += 0.1;
 		counter++;
 		if(counter % 20 == 0) {
 			
-			animNum++; //TEMP
+			animNum+=2; //TEMP
 			
 		}
 		if(animNum == 5) animNum = 1;
@@ -65,9 +69,9 @@ public class Skeleton extends Mob{
 				vy = 0;
 				for (int i = 0; i < handler.mob.size(); i++) {
 					Mob tempMob = handler.mob.get(i);
-					if(tempMob.getId() == ID.Player) {
-							int px = tempMob.x;
-							int py = tempMob.y;
+					if(tempMob.getId() == ID.PLAYER) {
+							int px = tempMob.x+16;
+							int py = tempMob.y+16;
 							Vector2i start = new Vector2i(x >> 5, y >> 5);
 							Vector2i destination = new Vector2i(px >> 5, py >> 5);
 							path = pathfinder.findPath(start, destination);
@@ -78,10 +82,10 @@ public class Skeleton extends Mob{
 							if(path != null) {
 								if(path.size() > 0) {
 									Vector2i vec = path.get(path.size() - 1).tile;
-									if(x < vec.getX() << 5) vx+=6;
-									if(x > vec.getX() << 5) vx-=6;
-									if(y < vec.getY() << 5) vy+=6;
-									if(y > vec.getY() << 5) vy-=6;
+									if(x < vec.getX() << 5) {vx+=3; dir  = 1;}
+									if(x > vec.getX() << 5) {vx-=3;  dir = 2;}
+									if(y < vec.getY() << 5) {vy+=3;  }
+									if(y > vec.getY() << 5) {vy-=3;  }
 								}
 							}
 				
@@ -98,7 +102,7 @@ public class Skeleton extends Mob{
 	for(int i =0; i < handler.entity.size(); i++) {
 			
 			Entity tempEntity = handler.entity.get(i);
-		if(tempEntity.getId() == ID.Bullet) {
+		if(tempEntity.getId() == ID.BULLET) {
 			if(getBounds().intersects(tempEntity.getBounds())) {
 				this.hp-=50;
 				handler.removeEntity(tempEntity);//loses 50 hp from bullet then destroys the bullet
@@ -116,8 +120,8 @@ public class Skeleton extends Mob{
 	
 	public void Move(double vx, double vy) {
 		 if(!collision(vx, vy)) {
-			fx+=vx/5;//move
-			fy+=vy/5;
+			fx+=vx/4;//move
+			fy+=vy/4;
 		 }
 		}
 		
@@ -127,10 +131,12 @@ public class Skeleton extends Mob{
 		for(int i = 0; i< handler.mob.size(); i++) {
 			Mob tempMob = handler.mob.get(i);
 
-			if(tempMob.getId() == ID.Player) {
-			if(new Rectangle(x+(int)vx,y+(int)vy,32,32).intersects(tempMob.getBounds())) {
+			if(tempMob.getId() == ID.PLAYER) {
+			if(new Rectangle(x+(int)vx,y+(int)vy,24,24).intersects(tempMob.getBounds())) {
 				//dont go inside of the player to hit him
-				main.hp--;
+				if(cooldown > cooldownDuration) {
+					hit(tempMob, 20, 10);
+				}
 				return true;
 				
 			}
@@ -139,8 +145,8 @@ public class Skeleton extends Mob{
 			}
 		for (int i = 0; i < handler.tile.size(); i++) {
 			Tile tempTile = handler.tile.get(i);
-			if (tempTile.getId() == ID.Block) {
-				if (new Rectangle(x + (int) vx, y + (int) vy, 24, 24).intersects(tempTile.getBounds())) {
+			if (tempTile.getId() == ID.SOLIDTILE) {
+				if (new Rectangle(x +  (int) vx, y + (int) vy, 24, 24).intersects(tempTile.getBounds())) {
 					return true;//wall collision
 				}
 			}
@@ -149,6 +155,11 @@ public class Skeleton extends Mob{
 		}
 		return false;
 	}
+	
+	public void hit(Mob targetMob, int damage, int knockback) {
+		cooldown = 0;
+		targetMob.hp -= damage;
+	}
 	@Override
 	public void render(Graphics g) {
 	//	g.setColor(Color.YELLOW);
@@ -156,12 +167,30 @@ public class Skeleton extends Mob{
 	//	g.setColor(Color.RED);
 		//g.fillRect((int)this.x+(int)vx,(int)this.y+(int)vy,32,32);
 		//anim.drawAnimation(g, x, y, 0);
-		enemy1_image = ss.grabImage(1, animNum, 32, 32);
-		if(vx==6) {
-		g.drawImage(enemy1_image, x, y, 32,32,null);
+		enemy1_image_top = ss.grabImage(1, animNum, 32, 16);
+		if(dir == 1) {
+		g.drawImage(enemy1_image_top, x, y, 32,16,null);
 		}
 		else{//flips the sprite on x axis if going left
-		g.drawImage(enemy1_image, x+32,y, -32,32,null);
+		g.drawImage(enemy1_image_top, x+32,y, -32,16,null);
+		}
+	
+		
+	}
+	
+	@Override
+	public void renderBottomHalf(Graphics g) {
+	//	g.setColor(Color.YELLOW);
+		//g.fillRect((int)x, (int)y, 32, 32);
+	//	g.setColor(Color.RED);
+		//g.fillRect((int)this.x+(int)vx,(int)this.y+(int)vy,32,32);
+		//anim.drawAnimation(g, x, y, 0);
+		enemy1_image_bottom = ss.grabImage(1, animNum+1, 32, 16);
+		if(dir == 1) {
+		g.drawImage(enemy1_image_bottom, x, y+16, 32,16,null);
+		}
+		else{//flips the sprite on x axis if going left
+		g.drawImage(enemy1_image_bottom, x+32,y+16, -32,16,null);
 		}
 		
 	}

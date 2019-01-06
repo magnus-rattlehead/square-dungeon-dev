@@ -25,7 +25,7 @@ public class Fog extends Effect {
 		this.size = size;
 
 		if (alpha == 0) {
-			this.alpha = random.nextInt(10) + 1;
+			this.alpha = random.nextInt(7) + 1;
 		} else {
 			this.alpha = alpha;
 		}

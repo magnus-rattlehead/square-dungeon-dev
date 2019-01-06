@@ -19,7 +19,7 @@ public class KeyInput extends KeyAdapter {
 		for (int i = 0; i < handler.mob.size(); i++) {
 			Mob tempMob = handler.mob.get(i);
 			//makes the player go left, right, or goodnight
-			if (tempMob.getId() == ID.Player) {
+			if (tempMob.getId() == ID.PLAYER) {
 				if (key == KeyEvent.VK_W)
 					handler.setUp(true);
 				if (key == KeyEvent.VK_A)
@@ -37,7 +37,7 @@ public class KeyInput extends KeyAdapter {
 		for (int i = 0; i < handler.mob.size(); i++) {
 			Mob tempMob = handler.mob.get(i);
 
-			if (tempMob.getId() == ID.Player) {
+			if (tempMob.getId() == ID.PLAYER) {
 				if (key == KeyEvent.VK_W)
 					handler.setUp(false);
 				if (key == KeyEvent.VK_A)

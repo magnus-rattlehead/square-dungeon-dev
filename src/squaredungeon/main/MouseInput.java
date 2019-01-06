@@ -29,10 +29,10 @@ public class MouseInput extends MouseAdapter {
 
 		for (int i = 0; i < handler.entity.size(); i++) {
 			Entity tempEntity = handler.entity.get(i);
-			if (tempEntity.getId() == ID.Weapon && Weapon.get().getIsEquipped() && Weapon.get().getMagSize() >= 1) {
-				handler.addEntity(new Bullet(tempEntity.getX(), tempEntity.getY(), ID.Bullet, handler, mx, my, ss));
+			if (tempEntity.getId() == ID.WEAPON && Weapon.get().getIsEquipped() && Weapon.get().getMagSize() >= 1) {
+				handler.addEntity(new Bullet(tempEntity.getX(), tempEntity.getY(), ID.BULLET, handler, mx, my, ss));
 				Weapon.get().minusOneBullet();
-			} else if (tempEntity.getId() == ID.Weapon && Weapon.get().getIsEquipped()
+			} else if (tempEntity.getId() == ID.WEAPON && Weapon.get().getIsEquipped()
 					&& Weapon.get().getMagSize() == 0) {
 				// TODO add reload method
 				break;
