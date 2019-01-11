@@ -35,6 +35,7 @@ public class Handler {
 		for (int i = 0; i < mob.size(); i++) {
 			Mob tempMob = mob.get(i);
 			tempMob.tick();
+		
 		}
 		for (int i = 0; i < entity.size(); i++) {
 			Entity tempEntity = entity.get(i);
@@ -102,6 +103,8 @@ public class Handler {
 	public synchronized void removeTile(Tile tempTile) {
 		tile.remove(tempTile);
 	}
+	
+
 
 	public boolean isUp() {
 		return up;

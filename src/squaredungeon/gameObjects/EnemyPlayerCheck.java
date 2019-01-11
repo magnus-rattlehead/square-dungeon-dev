@@ -57,7 +57,7 @@ public class EnemyPlayerCheck extends Entity
 
 	@Override
 	public void render(Graphics g) {
-		g.fillRect(x, y, 2, 2);
+		
 	}
 	@Override
 	public Rectangle getBounds() {

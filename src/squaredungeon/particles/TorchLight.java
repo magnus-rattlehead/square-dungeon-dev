@@ -68,8 +68,7 @@ public class TorchLight extends Entity {
 
 	@Override
 	public Rectangle getBounds() {
-		// TODO Auto-generated method stub
-		return null;
+ 		return null;
 	}
 
 }

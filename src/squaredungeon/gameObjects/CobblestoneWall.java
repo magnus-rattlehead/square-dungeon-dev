@@ -3,9 +3,11 @@ package squaredungeon.gameObjects;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 
 import squaredungeon.gfx.SpriteSheet;
 import squaredungeon.main.Handler;
+import squaredungeon.main.Main;
 
 public class CobblestoneWall extends Tile {
 
@@ -24,6 +26,7 @@ public class CobblestoneWall extends Tile {
 	public CobblestoneWall(int x, int y, ID id, SpriteSheet ss, Handler handler) {
 		super(x, y, id, ss);
 		this.handler = handler;
+			
 
 		block_image = ss.grabImage(32, 2, 32, 32); // all the images of the block depending on neighbouring blocks
 		block_image1 = ss.grabImage(32, 1, 32, 32);
@@ -106,6 +109,7 @@ public class CobblestoneWall extends Tile {
 			}
 		}
 		
+		if(Main.main.camera.getX() < x+32 && Main.main.camera.getX()+Main.WIDTH > x+32 && Main.main.camera.getY() < y+32 && Main.main.camera.getY()+Main.HEIGHT > y+32) {
 			if (!flip) {
 				g.drawImage(block_image, x, y, 32, 32, null); //draw that shit
 			}
@@ -113,6 +117,8 @@ public class CobblestoneWall extends Tile {
 			else {
 				g.drawImage(block_image, x + 32, y, -32, 32, null); //flips horizontally
 			}
+		}
+	
 		
 	}
 	// g.fillRect(rightRect.x,rightRect.y,32,32);

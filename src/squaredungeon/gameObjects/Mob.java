@@ -9,15 +9,19 @@ import squaredungeon.main.Handler;
 public abstract class Mob{
 
 	public int hp;
+	public String name;
 	protected double vx, vy;
 	protected double fx, fy;
 	protected boolean spottedPlayer = false;
 	protected Handler handler;
 	protected int y2;
 	protected int x2;
-	protected int x, y;
+	public int x;
+	public int y;
+	public int dir = 1;
 	protected ID id;
 	protected SpriteSheet ss;
+	public String mobID;
 	
 	public Mob(int x, int y, ID id, SpriteSheet ss, int hp) {
 		handler = new Handler();
@@ -26,6 +30,8 @@ public abstract class Mob{
 		this.y = y;
 		this.id = id;
 		this.ss = ss;
+		
+		
 	}
 	public abstract void tick();
 
@@ -75,7 +81,9 @@ public abstract class Mob{
 	public void setVy(int vy) {
 		this.vy = vy;
 	}
-
+	public String GetMobID() {
+		return mobID;
+	}
 
 
 

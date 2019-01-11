@@ -9,20 +9,23 @@ import squaredungeon.gfx.Animation;
 import squaredungeon.gfx.SpriteSheet;
 import squaredungeon.main.Handler;
 import squaredungeon.main.Main;
+import squaredungeon.net.Packet02Movement;
 
 public class Player extends Mob {
 	private int spottedTimer = 1000; //how long it takes to stop the aggro of enemies
 	private BufferedImage player_image_top;// replace 0 with amount of player models
 	private BufferedImage player_image_bottom;
+
 	private int ammo;
 	Animation anim;
-	private int dir;
 	
-	public Player(int x, int y, Handler handler, ID id, SpriteSheet ss, int hp) {
+	public Player(int x, int y, Handler handler, ID id, SpriteSheet ss, int hp, String name) {
 		super(x, y, id, ss, hp);
 		this.handler = handler;
+		this.name = name;
 		player_image_top = ss.grabImage(2, 1, 32, 16); // placeholder
 		player_image_bottom = ss.grabImage(2, 2, 32, 16);
+		
 		// player_image[1] = ss.grabImage(0, 0, 32, 32); //placeholder
 		// player_image[2] = ss.grabImage(0, 0, 32, 32); //placeholder
 		// ...
@@ -40,39 +43,40 @@ public class Player extends Mob {
 		if (this.spottedPlayer == true)
 			spottedTimer--;
 
-
+		if(handler!=null) {
 		collision(vx, vy); //check collisions 
 
 		vx = 0; //reset velocity
 		vy = 0;
 		// movement
+		
 		if (handler.isUp()) {//setting velocity
 			vy -= 3;
-			
 		}
-		// else if(!handler.isDown()) vy = 0;
 
 		if (handler.isDown()) {
 			vy +=3;
 		}
-		// else if(!handler.isUp()) vy = 0;
 
 		if (handler.isRight()) {
 			vx += 3;
 			dir = 1;
 		}
-		// else if(!handler.isLeft()) vx = 0;
 
 		if (handler.isLeft()) {
 			vx -= 3;
 			dir = 2;
 		}
-		// else if(!handler.isRight()) vx = 0;
 
 		if (vx != 0 || vy != 0) {
 			Move(vx, 0);
 			Move(0, vy);
+			
+			Packet02Movement packet = new Packet02Movement(this.getUsername(), this.x, this.y);
+			packet.writeData(Main.main.socketC);
 		}
+		
+		
 		// anim.runAnimation();
 		for (int i = 0; i < handler.entity.size(); i++) {
 			Entity tempEntity = handler.entity.get(i);
@@ -90,7 +94,8 @@ public class Player extends Mob {
 		}
 
 		}
-	}
+		}}
+	
 
 	public boolean collision(double vx, double vy) {
 		for (int i = 0; i < handler.tile.size(); i++) {
@@ -129,11 +134,13 @@ public class Player extends Mob {
 	public void render(Graphics g) {
 		// g.setColor(Color.BLUE);
 		// g.fillRect((int)x,(int)y, 32,32);
+		if(Main.main.camera.getX() < x+32 && Main.main.camera.getX()+Main.WIDTH > x+32 && Main.main.camera.getY() < y+32 && Main.main.camera.getY()+Main.HEIGHT > y+32) {
 		if(dir==1) {
 			g.drawImage(player_image_top, x, y, 32, 16, null);
 		}
 		else {
 			g.drawImage(player_image_top, x+32, y, -32, 16, null);
+		}
 		}
 		
 		// if(vx ==0 && vy ==0) g.drawImage(player_image[0], x, y, null);
@@ -159,6 +166,10 @@ public class Player extends Mob {
 	@Override
 	public Rectangle getBounds() {
 		return new Rectangle(x, y, 32, 32);
+	}
+	
+	public String getUsername() {
+		return name;
 	}
 
 }

@@ -34,17 +34,25 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import squaredungeon.gameObjects.CobblestoneWall;
 import squaredungeon.gameObjects.BrickWall;
 import squaredungeon.gameObjects.Camera;
 import squaredungeon.gameObjects.Crate;
 import squaredungeon.gameObjects.ID;
 import squaredungeon.gameObjects.Mob;
+import squaredungeon.gameObjects.NetPlayer;
 import squaredungeon.gameObjects.Player;
 import squaredungeon.gameObjects.Skeleton;
 import squaredungeon.gameObjects.Weapon;
 import squaredungeon.gfx.BufferedImageLoader;
 import squaredungeon.gfx.SpriteSheet;
+import squaredungeon.net.GameClient;
+import squaredungeon.net.GameServer;
+import squaredungeon.net.Packet00Join;
+import squaredungeon.net.Packet03MobMovement;
 import squaredungeon.particles.Fog;
 import squaredungeon.particles.TorchLight;
 
@@ -53,7 +61,7 @@ public class Main extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
 
 	static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
+	public static Main main;
 	//dimensions of the screen
 	public static final int WIDTH = (int) screenSize.getWidth();
 	public static final int HEIGHT = (int) screenSize.getHeight();
@@ -61,8 +69,9 @@ public class Main extends Canvas implements Runnable {
 	private boolean running = false; //game loop shit
 	private Thread thread;
 	
-	private int floors[];
-	private Handler handler;
+	public Game game;
+	public Handler handler;
+	public WindowHandler winHandler;
 	private static BufferedImageLoader loader = new BufferedImageLoader();
 	public static BufferedImage level = null;
 	
@@ -72,10 +81,10 @@ public class Main extends Canvas implements Runnable {
 	private static BufferedImage sprite_sheet_effects = null;
 	
 	public Camera camera;
-	private SpriteSheet ssTile;
-	private SpriteSheet ssMob;
-	private SpriteSheet ssEntity;
-	private SpriteSheet ssEffect;
+	public SpriteSheet ssTile;
+	public SpriteSheet ssMob;
+	public SpriteSheet ssEntity;
+	public SpriteSheet ssEffect;
 	private BufferedImage grass1,grass2,grass3,grass4,grass5,fogHorizontal, fogVerticle = null;
 
 	private final int LEVEL_1_NUM_OF_ENEMIES = 40; //stivi this shouldnt exist xd
@@ -91,6 +100,9 @@ public class Main extends Canvas implements Runnable {
 	public static boolean checkLoopDone = false;
 	public int level_width, level_height;
 	
+	//network
+	public GameClient socketC;
+	public GameServer socketS;
 	
 	
 	// weapons and other items taht will be initialized in initItems
@@ -99,12 +111,28 @@ public class Main extends Canvas implements Runnable {
 	public static Weapon shotgun;
 	public static Weapon rifle;
 	public static Weapon sniper;
-
+	public JFrame frame;
+	
+	public NetPlayer player; 
+	
+	
 	public Main() {
-		new Game(WIDTH, HEIGHT, "Square Dungeon", this);
+		main = this;
+		
+		frame = new JFrame();
+		frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+		frame.setMaximumSize(new Dimension(WIDTH, HEIGHT));
+		frame.setMinimumSize(new Dimension(WIDTH, HEIGHT));
+		frame.add(this);
+		frame.setResizable(false);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+		
 		start();
 
 		handler = new Handler();
+		winHandler = new WindowHandler(this);
 		camera = new Camera(0, 0);
 		this.addKeyListener(new KeyInput(handler));
 
@@ -127,20 +155,41 @@ public class Main extends Canvas implements Runnable {
 		grass3 = ssTile.grabImage(1, 3, 32, 32);
 		grass4 = ssTile.grabImage(1, 4, 32, 32);
 		grass5 = ssTile.grabImage(1, 5, 32, 32);
-		fogHorizontal = ssTile.grabImage(2, 32, 32, 32);
-		fogVerticle = ssTile.grabImage(1, 32, 32, 32);
+		fogHorizontal = ssTile.grabImage(2, 32, 64, 32);
+		fogVerticle = ssTile.grabImage(1, 16, 32, 64);
 		
 
 		this.addMouseListener(new MouseInput(handler, camera, this, ssEntity));
-
+		player = new NetPlayer(0, 0, handler, ID.PLAYER, ssMob, 100, JOptionPane.showInputDialog(this, "Enter a name"), null, -1,this);
+		
 		loadLevel(level);
+		
+			
+			Packet00Join joinPacket = new Packet00Join(player.getUsername(), player.x, player.y);
+
+			
+			if(socketS != null) {
+				socketS.addConnection(player, joinPacket);
+			}
+			//socketC.sendData("ping".getBytes());
+			joinPacket.writeData(socketC);
+		
+		
 
 	}
 
 	private void start() {
 		running = true;
-		thread = new Thread(this);
-		thread.start();
+		
+		if(JOptionPane.showConfirmDialog(this, "Do you want to run the server?") == 0) {
+			socketS = new GameServer(this);
+			socketS.start();
+		}
+		
+		socketC = new GameClient(this, "localhost");
+		socketC.start();
+		new Thread(this).start();
+		
 	}
 
 	private void stop() {
@@ -154,21 +203,14 @@ public class Main extends Canvas implements Runnable {
 	}
 
 	public void tick() {
-		if (hp <= 0)
-			stop();
-
-		for (int i = 0; i < handler.mob.size(); i++) {
-			Mob tempMob = handler.mob.get(i);
-			if (tempMob.getId() == ID.PLAYER) {
-				camera.tick(tempMob); //move camera boy
-			}
-		}
-
+		
 		handler.tick();
 		getNumEnemies();
 		if (levelComplete)
 			currentLevel++;
 		levelComplete = false;
+		if(player != null)
+			camera.tick(player); //move camera boy
 	}
 
 	public synchronized void render() {
@@ -208,25 +250,26 @@ public class Main extends Canvas implements Runnable {
 					g.drawImage(grass2, xx, yy,null);
 				}
 				*/
-			if(xx == -32) {
-				g.drawImage(fogHorizontal, xx+34, yy,-32,32,null);
-			}
-			else if(yy == -32) {
-				g.drawImage(fogVerticle, xx, yy+4,32,32,null);
-			}
-			else if(xx == 32 * (level_width) && yy != 32 * (level_height)) {
-				g.drawImage(fogHorizontal, xx, yy,32, 32,null);
-			}
-			else if(xx != 32 * (level_width) && yy == 32 * (level_height)) {
-				g.drawImage(fogVerticle, xx, yy+32,32,-32,null);
-			}
-			else if(xx > 0 && yy > 0 && xx < level_width * 32 && yy < level_height * 32){
-			g.drawImage(grass1, xx, yy,null);
-			}
+				if(xx == -32) {
+					g.drawImage(fogHorizontal, xx+32, yy,-64,32,null);
+				}
+				else if(yy == -32) {
+					g.drawImage(fogVerticle, xx, yy-28,32,64,null);
+				}
+				else if(xx == 32 * (level_width) && yy != 32 * (level_height)) {
+					g.drawImage(fogHorizontal, xx, yy,64, 32,null);
+				}
+				else if(xx != 32 * (level_width) && yy == 32 * (level_height)) {
+					g.drawImage(fogVerticle, xx, yy+64,32,-64,null);
+				}
+				else if(xx > 0 && yy > 0 && xx < level_width * 32 && yy < level_height * 32){
+				g.drawImage(grass1, xx, yy,null);
+				}
 			}
 		}
-
-		handler.render(g);
+		
+		if(handler != null)
+			handler.render(g);
 
 		if (level != null) { // once the level is found, add a tint
 		
@@ -265,8 +308,9 @@ public class Main extends Canvas implements Runnable {
 			frames++;
 			render();
 			if (System.currentTimeMillis() - timer > 1000) {
-				System.out.println(frames);
+				
 				timer += 1000;
+				frame.setTitle(Integer.toString(frames));
 				frames = 0;
 			}
 
@@ -291,18 +335,23 @@ public class Main extends Canvas implements Runnable {
 				if (red == 255 && blue == 0 && green == 0)
 					handler.addTile(new CobblestoneWall(xx * 32, yy * 32, ID.SOLIDTILE, ssTile, handler));
 				else if (red == 255 && blue == 255 && green == 0)
-					handler.addTile(new BrickWall(xx * 32, yy * 32, ID.SOLIDTILE, ssTile, handler));
+					handler.addTile(new BrickWall(xx * 32, yy * 32, ID.SOLIDTILE, ssTile, handler, this));
 				else if (blue == 255 && green == 0) {
-					handler.addMob(new Player(xx * 32, yy * 32, handler, ID.PLAYER, ssMob, 100));
-					handler.addEntity(new TorchLight(xx * 32, yy * 32, ID.TORCH, ssEntity, 55));
+					player.setX(xx*32);
+					player.setY(yy*32);
+					handler.addMob(player);
+					}
+				else if (green == 255 && blue == 0) {
+					//Packet03MobMovement mobspawnpacket = new Packet03MobMovement(new Skeleton(xx * 32, yy * 32, ID.ENEMY, ssMob, handler, hp), xx*32, yy*32);
+					handler.addMob(new Skeleton(xx * 32, yy * 32, ID.ENEMY, ssMob, handler, hp, this));
 				}
-				else if (green == 255 && blue == 0)
-					handler.addMob(new Skeleton(xx * 32, yy * 32, ID.ENEMY, ssMob, handler, hp));
 				else if (blue == 255 && green == 255)
 					handler.addEntity(new Crate(xx * 32, yy * 32, ID.CRATE, ssEntity));
 				else if (r1.nextInt(3) == 1) {
 					handler.addEffect(new Fog(fogX, fogY, ID.FOG, ssEffect, r1.nextInt(100) + 40, 0));
 				}
+				
+
 			}
 		}
 		

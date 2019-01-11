@@ -3,12 +3,16 @@ package squaredungeon.gameObjects;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 
 import squaredungeon.gfx.SpriteSheet;
 import squaredungeon.main.Handler;
+import squaredungeon.main.Main;
+import squaredungeon.particles.TorchLight;
 
 public class BrickWall extends Tile {
 
+	private Random r;
 	private int counter = 97;
 	private BufferedImage block_image;
 	private BufferedImage block_image1, block_image2, block_image3, block_image4, block_image5, block_image6,
@@ -22,14 +26,18 @@ public class BrickWall extends Tile {
 	private boolean checkedUp_walkway = false;
 	private boolean checkedRight_walkway = false;
 	private boolean checkedLeft_walkway = false;
-	
+	private Main main;
 	private boolean flip = false;
+	private boolean activated = false;;
 
 
-	public BrickWall(int x, int y, ID id, SpriteSheet ss, Handler handler) {
+	public BrickWall(int x, int y, ID id, SpriteSheet ss, Handler handler, Main main) {
 		super(x, y, id, ss);
+		this.main = main;
 		this.handler = handler;
 		this.WalkwayTile = false;
+		r = new Random();
+		
 		block_image = ss.grabImage(30, 2, 32, 32); // all the images of the block depending on neighbouring blocks
 		block_image1 = ss.grabImage(30, 1, 32, 32);
 		block_image2 = ss.grabImage(29, 1, 32, 32);
@@ -81,6 +89,25 @@ public class BrickWall extends Tile {
 				break;
 			case 6:
 				block_image = block_image5;
+				if(y< (main.level_height*32)-32)
+				{
+				int r1 = r.nextInt(100);
+				if(!activated  && (r1 <= 10)) {
+					handler.addEntity(new TorchLight(x+16, y+16, ID.TORCH, main.ssEntity, 50));
+					activated = true;
+				}
+				else if(!activated && r1 == 11) {
+					block_image5 = ss.grabImage(29, 8, 32, 32);
+					activated = true;
+				}
+				else if(!activated && r1 == 13) {
+					block_image5 = ss.grabImage(30, 8, 32, 32);
+					activated = true;
+				}
+				else {
+					activated = true;
+				}
+			}
 				break;
 			case 7:
 				this.WalkwayTile = true;
@@ -147,7 +174,7 @@ public class BrickWall extends Tile {
 				break;
 			}
 		}
-		
+		if(Main.main.camera.getX() < x+32 && Main.main.camera.getX()+Main.WIDTH > x+32 && Main.main.camera.getY() < y+32 && Main.main.camera.getY()+Main.HEIGHT > y+32) {
 			if (!flip) {
 				g.drawImage(block_image, x, y, 32, 32, null); //draw that shit
 			}
@@ -155,7 +182,7 @@ public class BrickWall extends Tile {
 			else {
 				g.drawImage(block_image, x + 32, y, -32, 32, null); //flips horizontally
 			}
-		
+		}
 	}
 	// g.fillRect(rightRect.x,rightRect.y,32,32);
 

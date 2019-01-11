@@ -13,6 +13,8 @@ import squaredungeon.main.Main;
 import squaredungeon.main.Node;
 import squaredungeon.main.PathFinder;
 import squaredungeon.main.Vector2i;
+import squaredungeon.net.Packet02Movement;
+import squaredungeon.net.Packet03MobMovement;
 
 public class Skeleton extends Mob{
 	private PathFinder pathfinder;
@@ -27,16 +29,18 @@ public class Skeleton extends Mob{
 	private BufferedImage enemy1_image_bottom;
 	private Handler handler;
 	private Main main;
-	private int dir = 1;
+	
 	private float cooldown = 0f;
 	private float cooldownDuration = 5f;
 	//Animation anim;
-	public Skeleton(int x, int y, ID id, SpriteSheet ss, Handler handler, int hp) {
+	public Skeleton(int x, int y, ID id, SpriteSheet ss, Handler handler, int hp, Main main) {
 		super(x, y, id, ss, hp);
+		this.main = main;
 		pathfinder = new PathFinder(handler);
 		fx = x;
 		fy = y;
 		this.handler = handler;
+		mobID = (Integer.toString(x) + Integer.toString(y));
 		
 		//anim = new Animation(y, enemy1_image, enemy1_image, enemy1_image);
 	}
@@ -46,6 +50,7 @@ public class Skeleton extends Mob{
 
 	@Override
 	public void tick() {
+		if(main.socketS != null) {
 		cooldown += 0.1;
 		counter++;
 		if(counter % 20 == 0) {
@@ -58,42 +63,44 @@ public class Skeleton extends Mob{
 	
 
 
-//				handler.addEntity(new EnemyPlayerCheck(this.x+16, this.y+16, ID.EnemyPlayerCheck, handler, tempMob.x, tempMob.y, ss));
-//				// makes a enemyplayercheck angled to the player(check the enemeyplayer check class for what that does.
-//			if (tempMob.spottedPlayer == true && Math.hypot(tempMob.x-x, tempMob.y-fy) < 350) {//go to the spotted player if hes 350 pixels or closer
-//				double angle = Math.atan2(tempMob.y+16 - fy, tempMob.x+16 - fx);// angle towards the player
-//		        vx = (10*Math.cos(angle));//set velocity to the angle
-//		        vy = (10*Math.sin(angle));
+	
 //		       
 				vx = 0;
 				vy = 0;
-				for (int i = 0; i < handler.mob.size(); i++) {
-					Mob tempMob = handler.mob.get(i);
-					if(tempMob.getId() == ID.PLAYER) {
-							int px = tempMob.x+16;
-							int py = tempMob.y+16;
-							Vector2i start = new Vector2i(x >> 5, y >> 5);
-							Vector2i destination = new Vector2i(px >> 5, py >> 5);
-							path = pathfinder.findPath(start, destination);
-					}
-					}
+				for(Mob tempMob : handler.mob) {
+					if(tempMob.getId() == ID.PLAYER && Math.hypot(tempMob.x-fx, tempMob.y-fy) < 300) {
+						
+handler.addEntity(new EnemyPlayerCheck(this.x+16, this.y+16, ID.ENEMYPLAYERCHECK, handler, tempMob.x, tempMob.y, ss));
+//	 makes a enemyplayercheck angled to the player(check the enemeyplayer check class for what that does.
+
+	if (tempMob.spottedPlayer == true ) {//go to the spotted player if hes 350 pixels or closer
+					int px = tempMob.x+16;
+					int py = tempMob.y+16;
+					Vector2i start = new Vector2i(x >> 5, y >> 5);
+					Vector2i destination = new Vector2i(px >> 5, py >> 5);
+					path = pathfinder.findPath(start, destination);
+	}
+	
+				
 					
 					
 							if(path != null) {
 								if(path.size() > 0) {
 									Vector2i vec = path.get(path.size() - 1).tile;
-									if(x < vec.getX() << 5) {vx+=3; dir  = 1;}
-									if(x > vec.getX() << 5) {vx-=3;  dir = 2;}
-									if(y < vec.getY() << 5) {vy+=3;  }
-									if(y > vec.getY() << 5) {vy-=3;  }
+									if(x < vec.getX() << 5) {vx+=5; dir  = 1;}
+									if(x > vec.getX() << 5) {vx-=5;  dir = 2;}
+									if(y < vec.getY() << 5) {vy+=5;  }
+									if(y > vec.getY() << 5) {vy-=5;  }
 								}
 							}
 				
-				
+			
 				if(vx!=0||vy!=0){
 			        Move(vx,0);//moves if velocity isnt 0
 					Move(0,vy);    
-			    }
+			    
+				}
+				break;}
 //			}
 //		//anim.runAnimation();
 //		}
@@ -114,7 +121,13 @@ public class Skeleton extends Mob{
 		
 		x = (int) this.fx;//set the x and y to the float x and y (lots of decimal calculations with angles)
 		y = (int) this.fy;
-     
+		
+				}
+					Packet03MobMovement packet = new Packet03MobMovement(mobID, (int)fx, (int)fy, handler);
+					packet.writeData(Main.main.socketC);
+					
+					}
+		
 		}
 		
 	
@@ -123,6 +136,8 @@ public class Skeleton extends Mob{
 			fx+=vx/4;//move
 			fy+=vy/4;
 		 }
+			
+	
 		}
 		
 	
@@ -167,7 +182,9 @@ public class Skeleton extends Mob{
 	//	g.setColor(Color.RED);
 		//g.fillRect((int)this.x+(int)vx,(int)this.y+(int)vy,32,32);
 		//anim.drawAnimation(g, x, y, 0);
+		
 		enemy1_image_top = ss.grabImage(1, animNum, 32, 16);
+		if(Main.main.camera.getX() < x+32 && Main.main.camera.getX()+Main.WIDTH > x+32 && Main.main.camera.getY() < y+32 && Main.main.camera.getY()+Main.HEIGHT > y+32) {
 		if(dir == 1) {
 		g.drawImage(enemy1_image_top, x, y, 32,16,null);
 		}
@@ -175,7 +192,7 @@ public class Skeleton extends Mob{
 		g.drawImage(enemy1_image_top, x+32,y, -32,16,null);
 		}
 	
-		
+		}
 	}
 	
 	@Override
@@ -203,6 +220,8 @@ public class Skeleton extends Mob{
 	public Rectangle getBoundsBig() {
 		return new Rectangle((int)fx-32,(int)fy-32,64,64);
 	}
+	
+
 
 }
 	

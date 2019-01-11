@@ -51,9 +51,10 @@ public class Fog extends Effect {
 
 	@Override
 	public void render(Graphics g) {
-
-		g.setColor(new Color(230, 230, 255, alpha));
-		g.fillRect((int) x1, (int) y1, size, size);
+		if(Main.main.camera.getX() < x+size && Main.main.camera.getX()+Main.WIDTH > x+size && Main.main.camera.getY() < y+size && Main.main.camera.getY()+Main.HEIGHT > y+size) {
+			g.setColor(new Color(230, 230, 255, alpha));
+			g.fillRect((int) x1, (int) y1, size, size);
+		}
 
 	}
 
