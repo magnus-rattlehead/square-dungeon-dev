@@ -25,7 +25,7 @@ public class Fog extends Effect {
 		this.size = size;
 
 		if (alpha == 0) {
-			this.alpha = random.nextInt(7) + 1;
+			this.alpha = random.nextInt(3) + 1;
 		} else {
 			this.alpha = alpha;
 		}
@@ -51,10 +51,9 @@ public class Fog extends Effect {
 
 	@Override
 	public void render(Graphics g) {
-		if(Main.main.camera.getX() < x+size && Main.main.camera.getX()+Main.WIDTH > x+size && Main.main.camera.getY() < y+size && Main.main.camera.getY()+Main.HEIGHT > y+size) {
 			g.setColor(new Color(230, 230, 255, alpha));
 			g.fillRect((int) x1, (int) y1, size, size);
-		}
+		
 
 	}
 

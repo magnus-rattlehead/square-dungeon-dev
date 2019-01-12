@@ -357,9 +357,9 @@ public class Animation {
 				currentImg = img8;
 
 			count++;
-
-			if (count > frames)
+			if (count >= frames)
 				count = 0;
+		
 
 			break;
 		case 9:

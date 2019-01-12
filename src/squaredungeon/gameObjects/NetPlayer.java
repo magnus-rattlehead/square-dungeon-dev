@@ -35,10 +35,14 @@ public class NetPlayer extends Player{
 	
 	public void tick() {
 		super.tick();
+		
 	}
 
 	public void render(Graphics g) {
 		super.render(g);
+		
+		g.setColor(Color.WHITE);
+		g.drawString(getUsername(), x, y);
 
 	}
 	public String getUsername() {

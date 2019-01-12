@@ -85,7 +85,8 @@ public class GameClient extends Thread{
 	    		Mob m = main.handler.mob.get (i);
 	    	//	
 	    		if(m.mobID != null && Integer.parseInt(m.mobID) == Integer.parseInt(packet.getMobID().trim())) {
-	    			
+	    		//	System.out.println(m.mobID);
+
 	    			//System.out.println(m.mobID + ", " + packet.getMobID() + ", " + m.getId());
 					if(packet.getX() > m.x) {
 						m.dir = 1;
@@ -104,14 +105,20 @@ public class GameClient extends Thread{
 	    private void handleMove(Packet02Movement packet) {
 	    	for(Mob m : main.handler.mob) {
     			if(m instanceof NetPlayer && ((NetPlayer) m).getUsername().equals(((Packet02Movement) packet).getUsername())) {
+    				
     				if(packet.getX() > m.x) {
     					((NetPlayer)m).dir = 1;
+    					
     				}
-    				if(packet.getX() < m.x) {
+    				else if(packet.getX() < m.x) {
     					((NetPlayer)m).dir = 2;
+    					
     				}
+    				
+    				
     				m.x = packet.getX();
     				m.y = packet.getY();
+    				((NetPlayer)m).moving = packet.getMoving();
     			
     			}
     		}

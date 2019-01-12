@@ -38,7 +38,7 @@ public class TorchLight extends Entity {
 	public void tick() {
 		anim.runAnimation();
 
-		if (counter2 >= random.nextInt(1) + 20) {
+		if (counter2 >= 20) {
 			counter2 = 0;
 			if (!less)
 				less = true;

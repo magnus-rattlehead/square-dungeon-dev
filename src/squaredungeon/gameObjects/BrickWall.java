@@ -174,7 +174,7 @@ public class BrickWall extends Tile {
 				break;
 			}
 		}
-		if(Main.main.camera.getX() < x+32 && Main.main.camera.getX()+Main.WIDTH > x+32 && Main.main.camera.getY() < y+32 && Main.main.camera.getY()+Main.HEIGHT > y+32) {
+		if(Main.main.camera.getX() < x+32 && Main.main.camera.getX()+Main.WIDTH > x && Main.main.camera.getY() < y+32 && Main.main.camera.getY()+Main.HEIGHT > y) {
 			if (!flip) {
 				g.drawImage(block_image, x, y, 32, 32, null); //draw that shit
 			}

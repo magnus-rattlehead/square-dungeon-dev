@@ -45,6 +45,7 @@ import squaredungeon.gameObjects.ID;
 import squaredungeon.gameObjects.Mob;
 import squaredungeon.gameObjects.NetPlayer;
 import squaredungeon.gameObjects.Player;
+import squaredungeon.gameObjects.PlayerInfo;
 import squaredungeon.gameObjects.Skeleton;
 import squaredungeon.gameObjects.Weapon;
 import squaredungeon.gfx.BufferedImageLoader;
@@ -63,8 +64,9 @@ public class Main extends Canvas implements Runnable {
 	static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	public static Main main;
 	//dimensions of the screen
-	public static final int WIDTH = (int) screenSize.getWidth();
-	public static final int HEIGHT = (int) screenSize.getHeight();
+	public static final float SCALE = 4.6f; //TODO a slider to increase/decrease this value, maybe bound to scroll wheel?
+	public static final int WIDTH = (int) Math.ceil((screenSize.getWidth()/SCALE));
+	public static final int HEIGHT = (int) (screenSize.getHeight()/SCALE);
 
 	private boolean running = false; //game loop shit
 	private Thread thread;
@@ -90,7 +92,7 @@ public class Main extends Canvas implements Runnable {
 	private final int LEVEL_1_NUM_OF_ENEMIES = 40; //stivi this shouldnt exist xd
 	private final int LEVEL_2_NUM_OF_ENEMIES = 40;
 
-	public static final float SCALE = 5f; //TODO a slider to increase/decrease this value, maybe bound to scroll wheel?
+	
 
 	public int ammo = 100;
 	public int hp = 100;
@@ -120,9 +122,9 @@ public class Main extends Canvas implements Runnable {
 		main = this;
 		
 		frame = new JFrame();
-		frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-		frame.setMaximumSize(new Dimension(WIDTH, HEIGHT));
-		frame.setMinimumSize(new Dimension(WIDTH, HEIGHT));
+		frame.setPreferredSize(new Dimension((int) (WIDTH*SCALE), (int) (HEIGHT*SCALE)));
+		frame.setMaximumSize(new Dimension((int) (WIDTH*SCALE), (int) (HEIGHT*SCALE)));
+		frame.setMinimumSize(new Dimension((int) (WIDTH*SCALE), (int) (HEIGHT*SCALE)));
 		frame.add(this);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -160,7 +162,13 @@ public class Main extends Canvas implements Runnable {
 		
 
 		this.addMouseListener(new MouseInput(handler, camera, this, ssEntity));
+		
 		player = new NetPlayer(0, 0, handler, ID.PLAYER, ssMob, 100, JOptionPane.showInputDialog(this, "Enter a name"), null, -1,this);
+		
+		if(player != null) {
+			PlayerInfo pinfo = new PlayerInfo(player, (int)camera.getX(), (int)camera.getY(), null, ssEffect, this);
+			handler.addGUI(pinfo);
+		}	
 		
 		loadLevel(level);
 		
@@ -203,14 +211,14 @@ public class Main extends Canvas implements Runnable {
 	}
 
 	public void tick() {
-		
+		if(player != null)
+			camera.tick(player); //move camera boy
 		handler.tick();
 		getNumEnemies();
 		if (levelComplete)
 			currentLevel++;
 		levelComplete = false;
-		if(player != null)
-			camera.tick(player); //move camera boy
+
 	}
 
 	public synchronized void render() {
@@ -250,6 +258,9 @@ public class Main extends Canvas implements Runnable {
 					g.drawImage(grass2, xx, yy,null);
 				}
 				*/
+				if(camera != null) {
+				if(camera.getX() < xx+32 && camera.getX()+WIDTH > xx && camera.getY() < yy+32 && camera.getY()+HEIGHT > yy) {
+
 				if(xx == -32) {
 					g.drawImage(fogHorizontal, xx+32, yy,-64,32,null);
 				}
@@ -265,7 +276,8 @@ public class Main extends Canvas implements Runnable {
 				else if(xx > 0 && yy > 0 && xx < level_width * 32 && yy < level_height * 32){
 				g.drawImage(grass1, xx, yy,null);
 				}
-			}
+				}
+			}}
 		}
 		
 		if(handler != null)
@@ -273,9 +285,11 @@ public class Main extends Canvas implements Runnable {
 
 		if (level != null) { // once the level is found, add a tint
 		
-			g.setColor(new Color(0, 0, 100, 20));
+			g.setColor(new Color(0, 0, 70, 15));
 			g.fillRect(0, 0, level.getWidth() * 32, level.getHeight() * 32);
+			handler.renderGUI(g);
 			g2d.translate(camera.getX(), camera.getY());
+		
 		}
 		
 		
@@ -347,7 +361,7 @@ public class Main extends Canvas implements Runnable {
 				}
 				else if (blue == 255 && green == 255)
 					handler.addEntity(new Crate(xx * 32, yy * 32, ID.CRATE, ssEntity));
-				else if (r1.nextInt(3) == 1) {
+				else if (r1.nextInt(2) == 1) {
 					handler.addEffect(new Fog(fogX, fogY, ID.FOG, ssEffect, r1.nextInt(100) + 40, 0));
 				}
 				

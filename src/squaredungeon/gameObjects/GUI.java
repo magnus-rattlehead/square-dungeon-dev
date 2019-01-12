@@ -12,7 +12,7 @@ public abstract class GUI {
 	protected ID id;
 	protected SpriteSheet ss;
 
-	public GUI(int x, int y, ID id, SpriteSheet ss) {
+	public GUI(Player player, int x, int y, ID id, SpriteSheet ss) {
 		handler = new Handler();
 		this.x = x;
 		this.y = y;

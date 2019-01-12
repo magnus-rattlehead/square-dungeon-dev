@@ -50,19 +50,16 @@ public class Skeleton extends Mob{
 
 	@Override
 	public void tick() {
-		if(main.socketS != null) {
-		cooldown += 0.1;
 		counter++;
-		if(counter % 20 == 0) {
+		if(counter % 90 == 0) {
 			
 			animNum+=2; //TEMP
 			
 		}
+		
 		if(animNum == 5) animNum = 1;
-	
-	
-
-
+		if(main.socketS != null) {
+		cooldown += 0.1;
 	
 //		       
 				vx = 0;
@@ -151,6 +148,7 @@ handler.addEntity(new EnemyPlayerCheck(this.x+16, this.y+16, ID.ENEMYPLAYERCHECK
 				//dont go inside of the player to hit him
 				if(cooldown > cooldownDuration) {
 					hit(tempMob, 20, 10);
+					System.out.println(tempMob.hp);
 				}
 				return true;
 				
@@ -184,7 +182,7 @@ handler.addEntity(new EnemyPlayerCheck(this.x+16, this.y+16, ID.ENEMYPLAYERCHECK
 		//anim.drawAnimation(g, x, y, 0);
 		
 		enemy1_image_top = ss.grabImage(1, animNum, 32, 16);
-		if(Main.main.camera.getX() < x+32 && Main.main.camera.getX()+Main.WIDTH > x+32 && Main.main.camera.getY() < y+32 && Main.main.camera.getY()+Main.HEIGHT > y+32) {
+		if(Main.main.camera.getX() < x+32 && Main.main.camera.getX()+Main.WIDTH > x && Main.main.camera.getY() < y+32 && Main.main.camera.getY()+Main.HEIGHT > y) {
 		if(dir == 1) {
 		g.drawImage(enemy1_image_top, x, y, 32,16,null);
 		}
@@ -203,11 +201,14 @@ handler.addEntity(new EnemyPlayerCheck(this.x+16, this.y+16, ID.ENEMYPLAYERCHECK
 		//g.fillRect((int)this.x+(int)vx,(int)this.y+(int)vy,32,32);
 		//anim.drawAnimation(g, x, y, 0);
 		enemy1_image_bottom = ss.grabImage(1, animNum+1, 32, 16);
+		if(Main.main.camera.getX() < x+32 && Main.main.camera.getX()+Main.WIDTH > x && Main.main.camera.getY() < y+32 && Main.main.camera.getY()+Main.HEIGHT > y) {
+
 		if(dir == 1) {
 		g.drawImage(enemy1_image_bottom, x, y+16, 32,16,null);
 		}
 		else{//flips the sprite on x axis if going left
 		g.drawImage(enemy1_image_bottom, x+32,y+16, -32,16,null);
+		}
 		}
 		
 	}

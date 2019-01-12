@@ -9,6 +9,7 @@ import java.util.List;
 
 import squaredungeon.gameObjects.Effect;
 import squaredungeon.gameObjects.Entity;
+import squaredungeon.gameObjects.GUI;
 import squaredungeon.gameObjects.ID;
 import squaredungeon.gameObjects.Mob;
 import squaredungeon.gameObjects.Tile;
@@ -20,6 +21,7 @@ public class Handler {
 	public ArrayList<Mob> mob = new ArrayList<Mob>();
 	public ArrayList<Effect> effect = new ArrayList<Effect>();
 	public ArrayList<Tile> tile = new ArrayList<Tile>();
+	public ArrayList<GUI> gui = new ArrayList<GUI>();
 
 	
 	private boolean up = false, down = false, right = false, left = false;//movement for the player
@@ -44,6 +46,10 @@ public class Handler {
 		for (int i = 0; i < tile.size(); i++) {
 			Tile tempTile = tile.get(i);
 			tempTile.tick();
+		}
+		for (int i = 0; i < gui.size(); i++) {
+			GUI tempGUI = gui.get(i);
+			tempGUI.tick();
 		}
 	}
 
@@ -71,6 +77,14 @@ public class Handler {
 		for (int i = 0; i < effect.size(); i++) {
 			Effect tempEffect = effect.get(i);
 			tempEffect.render(g);
+		}
+
+	}
+	
+	public synchronized void renderGUI(Graphics g) {
+		for (int i = 0; i < gui.size(); i++) {
+			GUI tempGUI = gui.get(i);
+			tempGUI.render(g);
 		}
 	}
 
@@ -104,7 +118,13 @@ public class Handler {
 		tile.remove(tempTile);
 	}
 	
+	public synchronized void addGUI(GUI tempGUI) {
+		gui.add(tempGUI);
+	}
 
+	public synchronized void removeGUI(GUI tempGUI) {
+		gui.remove(tempGUI);
+	}
 
 	public boolean isUp() {
 		return up;

@@ -45,14 +45,13 @@ public class Packet03MobMovement extends Packet{
 	
 
 	public String getMobID() {
-		
 		return mobID;
 	}
 	
 	public Mob getMob() {
 		for(Mob m : handler.mob) {
 			if(m.GetMobID() == mobID) {
-			System.out.println(mobID);
+			
 			return m;
 			}
 			else {

@@ -155,12 +155,18 @@ public class GameServer extends Thread{
 	    private void handleMove(Packet02Movement packet) {
 			if(getNetPlayer(packet.getUsername()) != null) {
 				int index = getNetPlayerIndex(packet.getUsername());
+			//	this.Players.get(index).moving = false;
 				if(packet.getX() > this.Players.get(index).x) {
 					this.Players.get(index).dir = 2;
+					//this.Players.get(index).moving = true;
 				}
 				else if(packet.getX() < this.Players.get(index).x){
 					this.Players.get(index).dir = 1;
+					//this.Players.get(index).moving = true;
 				}
+				
+			
+				this.Players.get(index).moving = packet.getMoving();
 				this.Players.get(index).x = packet.getX();
 				this.Players.get(index).y = packet.getY();
 				packet.writeData(this);
@@ -168,8 +174,15 @@ public class GameServer extends Thread{
 		}
 	    
 	    public void sendData(byte[] data, InetAddress ipAddress, int port) {
-	        DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, port);
+	    	DatagramPacket packet;
+	    	if(port != -1) {
+	    		packet = new DatagramPacket(data, data.length, ipAddress, port);
+	    	}
+	    	else {
+	    		packet = null;
+	    	}
 	        try {
+	        if(packet != null)
 	            this.socket.send(packet);
 	        } catch (IOException e) {
 	            e.printStackTrace();
