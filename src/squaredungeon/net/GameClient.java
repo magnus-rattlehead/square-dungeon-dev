@@ -1,5 +1,6 @@
 package squaredungeon.net;
 
+import squaredungeon.gameObjects.Entity;
 import squaredungeon.gameObjects.ID;
 import squaredungeon.gameObjects.Mob;
 import squaredungeon.gameObjects.NetPlayer;
@@ -77,6 +78,10 @@ public class GameClient extends Thread{
 	    		packet = new Packet03MobMovement(data, main.handler);
 	    		handleMoveMob(((Packet03MobMovement) packet));
 	    		break;
+	    	case ENTITYREMOVE:
+	    		packet = new Packet04EntityRemove(data);
+	    		removeEntity(((Packet04EntityRemove) packet));
+	    		break;
 	    	}
 		}
 	    private void handleMoveMob(Packet03MobMovement packet) {
@@ -123,7 +128,18 @@ public class GameClient extends Thread{
     			}
     		}
 		}
-	    
+		public void removeEntity(Packet04EntityRemove packet) {
+	    	for(int i = 0; i < main.handler.entity.size(); i++) {
+	    		Entity e = main.handler.entity.get (i);
+	    		
+	    		if(e.EntityID != null && Integer.parseInt(e.EntityID) == Integer.parseInt(packet.getEntityID().trim())) {
+	    			System.out.println(e.EntityID);
+				main.handler.removeEntity(e);
+				packet.writeData(this);
+			
+	    		}
+			}
+		}
 	    private void handleJoin(Packet00Join packet, InetAddress ip, int port) {
 	    	
     		System.out.println(ip.getHostAddress() + "/" +port +"   "+ ((Packet00Join) packet).getUsername()+ " has connected...");

@@ -3,8 +3,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="res"/>
-	<classpathentry kind="lib" path="C:/Users/Funk-E Monkey/.gradle/caches/modules-2/files-2.1/com.badlogicgames.box2dlights/box2dlights/1.4/3d77ad5b4164fb32fc67e2446e35911bb0aaf0bd/box2dlights-1.4.jar" sourcepath="C:/Users/Funk-E Monkey/.gradle/caches/modules-2/files-2.1/com.badlogicgames.box2dlights/box2dlights/1.4/57a1f15112328706c648a430bd19574118e2d8f4/box2dlights-1.4-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Funk-E Monkey/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-box2d/1.9.8/6f0497b7958216464101adfb7bdc3a0f7b88d6d3/gdx-box2d-1.9.8.jar" sourcepath="C:/Users/Funk-E Monkey/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-box2d/1.9.8/1fd1df309f965e52196900b270afc2bcd0acd0a2/gdx-box2d-1.9.8-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Funk-E Monkey/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.9.8/a35a0076fbce873f9c2d5a1a1c8066244231bb3c/gdx-1.9.8.jar" sourcepath="C:/Users/Funk-E Monkey/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.9.8/bac17f395be5010619b31280fe84e9f53118d0b9/gdx-1.9.8-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

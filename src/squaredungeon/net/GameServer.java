@@ -1,5 +1,6 @@
 package squaredungeon.net;
 
+import squaredungeon.gameObjects.Entity;
 import squaredungeon.gameObjects.ID;
 import squaredungeon.gameObjects.Mob;
 import squaredungeon.gameObjects.NetPlayer;
@@ -75,6 +76,10 @@ public class GameServer extends Thread{
 	    		packet = new Packet03MobMovement(data, main.handler);
 	    		handleMoveMob(((Packet03MobMovement) packet));
 	    		break;
+	    	case ENTITYREMOVE:
+	    		packet = new Packet04EntityRemove(data);
+	    		removeEntity(((Packet04EntityRemove) packet));
+	    		break;
 	    	}
 		}
 	    
@@ -108,7 +113,17 @@ public class GameServer extends Thread{
 			this.Players.remove(getNetPlayerIndex(packet.getUsername()));
 			packet.writeData(this);
 		}
-	    
+		public void removeEntity(Packet04EntityRemove packet) {
+	    	for(int i = 0; i < main.handler.entity.size(); i++) {
+	    		Entity e = main.handler.entity.get (i);
+	    	
+	    		if(e.EntityID != null && Integer.parseInt(e.EntityID) == Integer.parseInt(packet.getEntityID().trim())) {
+				
+	    			main.handler.removeEntity(e);
+				packet.writeData(this);
+	    		}
+			}
+		}
 	    public NetPlayer getNetPlayer(String username) {
 	    	for(NetPlayer p: this.Players) {
 	    		if(p.getUsername().equalsIgnoreCase(username)) {

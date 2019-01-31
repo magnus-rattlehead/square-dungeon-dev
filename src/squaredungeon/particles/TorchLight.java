@@ -9,6 +9,7 @@ import squaredungeon.gameObjects.Entity;
 import squaredungeon.gameObjects.ID;
 import squaredungeon.gfx.Animation;
 import squaredungeon.gfx.SpriteSheet;
+import squaredungeon.main.Main;
 
 public class TorchLight extends Entity {
 	//ALL OF THIS IS PROBABLY TEMP
@@ -52,15 +53,15 @@ public class TorchLight extends Entity {
 
 	@Override
 	public void render(Graphics g) {
-		
-		anim.drawAnimation(g, x-6 , y-6, 12, 12, 0);
+		if(Main.main.camera.getX() < x+32 && Main.main.camera.getX()+Main.WIDTH > x && Main.main.camera.getY() < y+32 && Main.main.camera.getY()+Main.HEIGHT > y) 
+			anim.drawAnimation(g, x-6 , y-6, 12, 12, 0);
 
 		// g.drawImage(torch_image, (int) x-8, (int) y-8, 16, 16, null);
 		if (less) {
-			size-=0.05f;
+			size-=0.02f;
 			g.drawImage(TorchLight, (int) x - (int)size / 2, (int) y - (int)size / 2, (int)size, (int)size, null);
 		} else {
-			size+=0.05f;
+			size+=0.02f;
 			g.drawImage(TorchLight, (int) x - (int)size / 2, (int) y - (int)size / 2, (int)size, (int)size, null);
 		}
 

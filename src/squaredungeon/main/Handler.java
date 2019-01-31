@@ -12,7 +12,9 @@ import squaredungeon.gameObjects.Entity;
 import squaredungeon.gameObjects.GUI;
 import squaredungeon.gameObjects.ID;
 import squaredungeon.gameObjects.Mob;
+import squaredungeon.net.Packet04EntityRemove;
 import squaredungeon.gameObjects.Tile;
+import squaredungeon.net.Packet03MobMovement;
 
 
 public class Handler {

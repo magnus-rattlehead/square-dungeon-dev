@@ -2,6 +2,7 @@ package squaredungeon.gameObjects;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
@@ -12,6 +13,7 @@ public class PlayerInfo extends GUI {
 	private Player player;
 	private Main main;
 	private int playerhpwidth;
+	private float GUIScale;
 	private BufferedImage hp_bar_img;
 	private BufferedImage hp_bar_division_img;
 	private BufferedImage hp_bar_outline_img;
@@ -23,7 +25,6 @@ public class PlayerInfo extends GUI {
 		hp_bar_outline_img = ss.grabImage(2, 1, 64, 8);
 		hp_bar_img = ss.grabImage(1, 1, 64, 8);
 		hp_bar_background_img = ss.grabImage(1, 2, 64, 16);
-		
 	}
 	@Override
 	public void tick() {
@@ -32,9 +33,12 @@ public class PlayerInfo extends GUI {
 	@Override
 	public void render(Graphics g) {
 		
+		
+		
 		playerhpwidth = (64*player.hp/100);
 		
-		
+		GUIScale =  1;
+		//System.out.println(GUIScale);
 		if(playerhpwidth < 0)
 			playerhpwidth = 0;
 		if((playerhpwidth > 0)) {
@@ -48,11 +52,11 @@ public class PlayerInfo extends GUI {
 		
 		g.setColor(new Color(0,0,0,120));
 		//g.fillRect(main.camera.getX() + ((Main.WIDTH/3)), main.camera.getY(), (int)(Main.WIDTH-Main.WIDTH/1.5), Main.HEIGHT/8);
-		g.drawImage(hp_bar_background_img, main.camera.getX(), main.camera.getY(),118,24,null);
-		g.drawImage(hp_bar_outline_img, main.camera.getX() + 16, main.camera.getY()+6, 96,12,null);
+		g.drawImage(hp_bar_background_img, main.camera.getX(), main.camera.getY(),96,16,null);
+		g.drawImage(hp_bar_outline_img, main.camera.getX() + 16, main.camera.getY()+4, 64,8,null);
 		if(hp_bar_division_img != null)
-			g.drawImage(hp_bar_division_img, main.camera.getX() + 16, main.camera.getY()+6, (int)(playerhpwidth*1.5),12,null);
-		g.drawImage(player.player_image_headshot,main.camera.getX() + 2, main.camera.getY()+6, 13,13,null);
+			g.drawImage(hp_bar_division_img, main.camera.getX() + 16, main.camera.getY()+4, (int)Math.ceil((playerhpwidth*1)),8,null);
+		g.drawImage(player.player_image_headshot,main.camera.getX() + 2, main.camera.getY()+(int)1, 13,13,null);
 	
 		// HUD//
 

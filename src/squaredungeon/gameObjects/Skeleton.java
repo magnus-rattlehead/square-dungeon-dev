@@ -40,8 +40,8 @@ public class Skeleton extends Mob{
 		fx = x;
 		fy = y;
 		this.handler = handler;
-		mobID = (Integer.toString(x) + Integer.toString(y));
 		
+	//	enemy1_image_top = ss.grabImage(1, animNum, 32, 16);
 		//anim = new Animation(y, enemy1_image, enemy1_image, enemy1_image);
 	}
 

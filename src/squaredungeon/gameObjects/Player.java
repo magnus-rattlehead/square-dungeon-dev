@@ -11,6 +11,8 @@ import squaredungeon.gfx.SpriteSheet;
 import squaredungeon.main.Handler;
 import squaredungeon.main.Main;
 import squaredungeon.net.Packet02Movement;
+import squaredungeon.net.Packet03MobMovement;
+import squaredungeon.net.Packet04EntityRemove;
 
 public class Player extends Mob {
 	private int spottedTimer = 1000; //how long it takes to stop the aggro of enemies
@@ -130,9 +132,17 @@ public class Player extends Mob {
 		for (int i = 0; i < handler.entity.size(); i++) {
 			Entity tempEntity = handler.entity.get(i);
 		if (tempEntity.getId() == ID.CRATE) {
+			if(Main.main.socketC != null || Main.main.socketS != null) {
 			if (getBounds().intersects(tempEntity.getBounds())) {
 				this.ammo += 50;
 				handler.removeEntity(tempEntity); //increase ammo when player touches an ammo crate
+				Packet04EntityRemove packet = new Packet04EntityRemove(tempEntity.getEntityID());
+				
+				if(Main.main.socketS != null)
+					packet.writeData(Main.main.socketS);
+				else
+					packet.writeData(Main.main.socketC);
+			}
 			}
 		}
 		if (tempEntity.getId() == ID.ENEMYPLAYERCHECK) {
@@ -153,7 +163,7 @@ public class Player extends Mob {
 		for (int i = 0; i < handler.tile.size(); i++) {
 			Tile tempTile = handler.tile.get(i);
 			if (tempTile.getId() == ID.SOLIDTILE) {
-				if (new Rectangle(x + 10 +(int) vx, y + 16 + (int) vy, 13, 1).intersects(tempTile.getBounds())) {
+				if (new Rectangle(x + 10 +(int) vx, y +16 + (int) vy, 13, 1).intersects(tempTile.getBounds())) {
 					return true; //works ahead of the next movement to make sure your next movement doesnt allow you to go inside of a wall
 				}
 			}

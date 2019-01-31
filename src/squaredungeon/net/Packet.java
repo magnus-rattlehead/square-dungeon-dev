@@ -2,7 +2,7 @@ package squaredungeon.net;
 
 public abstract class Packet {
 	 public static enum PacketTypes {
-	        INVALID(-1), JOIN(00), DISCONNECT(01), MOVE(02), MOBMOVE(03);
+	        INVALID(-1), JOIN(00), DISCONNECT(01), MOVE(02), MOBMOVE(03), ENTITYREMOVE(04);
 
 	        private int packetID;
 

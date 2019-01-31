@@ -15,6 +15,7 @@ public abstract class Entity{
 	protected int x, y;
 	protected ID id;
 	protected SpriteSheet ss;
+	public String EntityID;
 
 	public Entity(int x, int y, ID id, SpriteSheet ss) {
 		handler = new Handler();
@@ -22,6 +23,7 @@ public abstract class Entity{
 		this.y = y;
 		this.id = id;
 		this.ss = ss;
+		this.EntityID = (Integer.toString(x) + Integer.toString(y));
 	}
 	
 
@@ -53,6 +55,11 @@ public abstract class Entity{
 
 	public void setY(int y) {
 		this.y = y;
+	}
+
+
+	public String getEntityID() {
+		return EntityID;
 	}
 
 

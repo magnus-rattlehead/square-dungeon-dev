@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 
 import squaredungeon.gfx.Animation;
 import squaredungeon.gfx.SpriteSheet;
+import squaredungeon.main.Main;
 
 public class Crate extends Entity {
 
@@ -34,7 +35,8 @@ public class Crate extends Entity {
 
 	@Override
 	public void render(Graphics g) {
-		anim.drawAnimation(g, x, y, 32 , 32, 0);
+		if(Main.main.camera.getX() < x+32 && Main.main.camera.getX()+Main.WIDTH > x && Main.main.camera.getY() < y+32 && Main.main.camera.getY()+Main.HEIGHT > y) 
+			anim.drawAnimation(g, x, y, 32 , 32, 0);
 	}
 
 	@Override

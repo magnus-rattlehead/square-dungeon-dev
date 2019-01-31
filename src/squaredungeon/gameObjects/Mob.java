@@ -30,7 +30,7 @@ public abstract class Mob{
 		this.y = y;
 		this.id = id;
 		this.ss = ss;
-		
+		mobID = (Integer.toString(x) + Integer.toString(y));
 		
 	}
 	public abstract void tick();

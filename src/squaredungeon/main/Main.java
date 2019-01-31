@@ -15,20 +15,19 @@ Rest of the TODO is in the Weapon class
 **/
 package squaredungeon.main;
 
+
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
+
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.io.IOException;
+
+import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -58,20 +57,24 @@ import squaredungeon.particles.Fog;
 import squaredungeon.particles.TorchLight;
 
 public class Main extends Canvas implements Runnable {
-
+	public Properties prop;
 	private static final long serialVersionUID = 1L;
 
 	static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	public static Main main;
 	//dimensions of the screen
-	public static final float SCALE = 4.6f; //TODO a slider to increase/decrease this value, maybe bound to scroll wheel?
-	public static final int WIDTH = (int) Math.ceil((screenSize.getWidth()/SCALE));
-	public static final int HEIGHT = (int) (screenSize.getHeight()/SCALE);
+	
+	public static float SCALE; //TODO a slider to increase/decrease this value, maybe bound to scroll wheel?
+	public static int WIDTH = (int) screenSize.getWidth();
+	public static int HEIGHT = (int) screenSize.getHeight();
+	public static int ORIGINAL_WIDTH;
+	public static int ORIGINAL_HEIGHT;
+	public static float ORIGINAL_SCALE;
 
 	private boolean running = false; //game loop shit
 	private Thread thread;
 	
-	public Game game;
+	public MouseInput mouseInput;
 	public Handler handler;
 	public WindowHandler winHandler;
 	private static BufferedImageLoader loader = new BufferedImageLoader();
@@ -89,8 +92,7 @@ public class Main extends Canvas implements Runnable {
 	public SpriteSheet ssEffect;
 	private BufferedImage grass1,grass2,grass3,grass4,grass5,fogHorizontal, fogVerticle = null;
 
-	private final int LEVEL_1_NUM_OF_ENEMIES = 40; //stivi this shouldnt exist xd
-	private final int LEVEL_2_NUM_OF_ENEMIES = 40;
+
 
 	
 
@@ -115,16 +117,53 @@ public class Main extends Canvas implements Runnable {
 	public static Weapon sniper;
 	public JFrame frame;
 	
+	public StartMenu startMenu;
+	public String state = "menu";
+	public String menu = "menu";
+	public String game = "game";
+	
 	public NetPlayer player; 
 	
 	
 	public Main() {
 		main = this;
 		
+		
+		state = menu;
+		
+		
+
+		prop = new Properties();
+		 
+
+	        try {
+	          //load a properties file from class path, inside static method
+	          prop.load(Main.class.getClassLoader().getResourceAsStream("options.properties"));
+
+	          //get the property value 
+	          if(!(prop.getProperty("width").equalsIgnoreCase("native"))) {
+	        	  WIDTH = Integer.parseInt(prop.getProperty("width"));
+	          }
+	          if(!(prop.getProperty("height").equalsIgnoreCase("native"))) {
+	        	  HEIGHT = Integer.parseInt(prop.getProperty("height"));
+	          }
+	          SCALE = 5*(((float)WIDTH*(float)HEIGHT)/(1920*1080));
+
+	          System.out.println("Scale: " +SCALE + " / WIDTH: "+ WIDTH + " / HEIGHT: " + HEIGHT);
+
+	        } catch (IOException ex) {
+	            ex.printStackTrace();
+	        }
+	        
 		frame = new JFrame();
-		frame.setPreferredSize(new Dimension((int) (WIDTH*SCALE), (int) (HEIGHT*SCALE)));
-		frame.setMaximumSize(new Dimension((int) (WIDTH*SCALE), (int) (HEIGHT*SCALE)));
-		frame.setMinimumSize(new Dimension((int) (WIDTH*SCALE), (int) (HEIGHT*SCALE)));
+		frame.setPreferredSize(new Dimension((int) (WIDTH), (int) (HEIGHT)));
+		frame.setMaximumSize(new Dimension((int) (WIDTH), (int) (HEIGHT)));
+		frame.setMinimumSize(new Dimension((int) (WIDTH), (int) (HEIGHT)));
+		ORIGINAL_WIDTH = WIDTH;
+		ORIGINAL_HEIGHT = HEIGHT;
+		ORIGINAL_SCALE = SCALE;
+        WIDTH = (int) (WIDTH/SCALE);
+        HEIGHT = (int) (HEIGHT/SCALE);
 		frame.add(this);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -133,12 +172,17 @@ public class Main extends Canvas implements Runnable {
 		
 		start();
 
+		camera = new Camera(0, 0);
 		handler = new Handler();
 		winHandler = new WindowHandler(this);
-		camera = new Camera(0, 0);
-		this.addKeyListener(new KeyInput(handler));
+		mouseInput = new MouseInput(handler, camera, this, ssEntity);
+		this.addMouseListener(mouseInput);
 
-		level = loader.loadImage("/level_" + currentLevel + ".png");
+		
+		this.addKeyListener(new KeyInput(handler));
+		startMenu = new StartMenu();
+
+		level = loader.loadImage("/level_1.png");
 		level_width = level.getWidth();
 		level_height = level.getHeight();
 		
@@ -160,8 +204,24 @@ public class Main extends Canvas implements Runnable {
 		fogHorizontal = ssTile.grabImage(2, 32, 64, 32);
 		fogVerticle = ssTile.grabImage(1, 16, 32, 64);
 		
+		if(state == game) {
+		
 
-		this.addMouseListener(new MouseInput(handler, camera, this, ssEntity));
+		}
+		
+
+	}
+	public void StartGame() {
+		if(JOptionPane.showConfirmDialog(this, "Do you want to run the server?") == 0) {
+			socketS = new GameServer(this);
+			socketS.start();
+		}
+		
+
+		socketC = new GameClient(this, "localhost");
+		socketC.start();
+		
+		state = game;
 		
 		player = new NetPlayer(0, 0, handler, ID.PLAYER, ssMob, 100, JOptionPane.showInputDialog(this, "Enter a name"), null, -1,this);
 		
@@ -181,21 +241,12 @@ public class Main extends Canvas implements Runnable {
 			}
 			//socketC.sendData("ping".getBytes());
 			joinPacket.writeData(socketC);
-		
-		
-
 	}
-
 	private void start() {
 		running = true;
-		
-		if(JOptionPane.showConfirmDialog(this, "Do you want to run the server?") == 0) {
-			socketS = new GameServer(this);
-			socketS.start();
-		}
-		
-		socketC = new GameClient(this, "localhost");
-		socketC.start();
+	//	if(state == game) {
+
+		//}
 		new Thread(this).start();
 		
 	}
@@ -211,14 +262,19 @@ public class Main extends Canvas implements Runnable {
 	}
 
 	public void tick() {
-		if(player != null)
-			camera.tick(player); //move camera boy
-		handler.tick();
-		getNumEnemies();
-		if (levelComplete)
-			currentLevel++;
-		levelComplete = false;
-
+		if(state == menu) {
+			if(startMenu != null)
+				startMenu.tick();
+		}
+		if(state == game) {
+			if(player != null)
+				camera.tick(player); //move camera boy
+			handler.tick();
+			getNumEnemies();
+			if (levelComplete)
+				currentLevel++;
+			levelComplete = false;
+		}
 	}
 
 	public synchronized void render() {
@@ -230,34 +286,37 @@ public class Main extends Canvas implements Runnable {
 
 		Graphics g = bs.getDrawGraphics();
 		Graphics2D g2d = (Graphics2D) g;
+		
+		Graphics gGUI = bs.getDrawGraphics();
+		Graphics2D g2dGUI = (Graphics2D) gGUI;
+		
+		WIDTH = (int) (ORIGINAL_WIDTH/SCALE);
+		HEIGHT = (int) (ORIGINAL_HEIGHT/SCALE);
+		g2d.scale(SCALE, SCALE);
+		g2dGUI.scale(ORIGINAL_SCALE, ORIGINAL_SCALE);
+
 		////////////////////////////////////
 
 		// background
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
-
-		g2d.scale(SCALE, SCALE);
+		
+		if(state == menu) {
+			if(startMenu != null)
+				startMenu.render(g);
+		}
+		
 		if (level != null) { // once the level is found, add a tint
+			g2dGUI.translate(-camera.getX(), -camera.getY());
 			g2d.translate(-camera.getX(), -camera.getY());
 		}
-
+		
 		// TODO uncomment when sprite sheet complete
-	
-	
+		
+		if(state == game) {
 		for (int xx = -32; xx < 32 * (level_width + 1); xx += 32) {
 			for (int yy = -32; yy < 32 * (level_height + 1); yy += 32) { //draw floor tiles and fog
-			/*	if(((xx/32)*(yy/32) + 1) % 7 == 0)
-					g.drawImage(grass1, xx, yy,null);
-				else if(((xx/32)*(yy/32) + 1) % 6 == 0)
-					g.drawImage(grass5, xx, yy,null);
-				else if(((xx/32)*(yy/32) + 1) % 5 == 0)
-					g.drawImage(grass3, xx, yy,null);
-				else if(((xx/32)*(yy/32) + 1) % 4 == 0)
-					g.drawImage(grass4, xx, yy,null);
-				else {
-					g.drawImage(grass2, xx, yy,null);
-				}
-				*/
+
 				if(camera != null) {
 				if(camera.getX() < xx+32 && camera.getX()+WIDTH > xx && camera.getY() < yy+32 && camera.getY()+HEIGHT > yy) {
 
@@ -287,15 +346,17 @@ public class Main extends Canvas implements Runnable {
 		
 			g.setColor(new Color(0, 0, 70, 15));
 			g.fillRect(0, 0, level.getWidth() * 32, level.getHeight() * 32);
-			handler.renderGUI(g);
+			handler.renderGUI(gGUI);
 			g2d.translate(camera.getX(), camera.getY());
-		
+			
+	
 		}
-		
+		}
 		
 
 		
 		g.dispose();
+		gGUI.dispose();
 		bs.show();
 	}
 
@@ -361,15 +422,24 @@ public class Main extends Canvas implements Runnable {
 				}
 				else if (blue == 255 && green == 255)
 					handler.addEntity(new Crate(xx * 32, yy * 32, ID.CRATE, ssEntity));
-				else if (r1.nextInt(2) == 1) {
-					handler.addEffect(new Fog(fogX, fogY, ID.FOG, ssEffect, r1.nextInt(100) + 40, 0));
-				}
 				
+				if(prop.getProperty("graphics").equalsIgnoreCase("high")) {
+					if (r1.nextInt(2) == 1) {
+						handler.addEffect(new Fog(fogX, fogY, ID.FOG, ssEffect, r1.nextInt(100) + 40, 0));
+					}
+				}
+				else if(prop.getProperty("graphics").equalsIgnoreCase("medium")) {
+					if (r1.nextInt(3) == 1) {
+						handler.addEffect(new Fog(fogX, fogY, ID.FOG, ssEffect, r1.nextInt(100) + 40, 0));
+					}
+				}
+		
+				}
 
 			}
 		}
 		
-	}
+	
 	
 	
 	private void getNumEnemies() {
@@ -383,13 +453,7 @@ public class Main extends Canvas implements Runnable {
 					 * TODO Once multiple levels are added, make new constant variables for evey
 					 * level
 					 */
-					if (currentLevel == 1) {
-						if (numOfEnemies >= LEVEL_1_NUM_OF_ENEMIES)
-							checkLoopDone = true;
-					} else if (currentLevel == 2) {
-						if (numOfEnemies >= LEVEL_2_NUM_OF_ENEMIES)
-							checkLoopDone = true;
-					}
+
 				}
 			}
 		}
